@@ -60,7 +60,7 @@ namespace CameraMessage
 
         void IPlugin.OnUpdate()
         {
-            Debug.Log("Hello World Test");
+            
         }
     }
 }

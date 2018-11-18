@@ -22,7 +22,7 @@ namespace CameraMessage
         public static DateTime lastplayedTimeStamp;
         public static bool isPlaying = false;
 
-        public static string messageDelay = "10";
+        public static string messageDelay = "8";
         public static string saveFileName = "Enter Filename here";
         public static string lastButtonPressed = "C1";
         public static string lastPlayedButton = "C0";
@@ -73,7 +73,7 @@ namespace CameraMessage
 
         public bool SetCameraAndMessage(string cameraButtonName)
         {
-            Console.WriteLine("set camera for " + cameraButtonName + " and isplaying: " +playButtonPressed);
+            //Console.WriteLine("set camera for " + cameraButtonName + " and isplaying: " +playButtonPressed);
 
             if (cameraDictionary.ContainsKey(cameraButtonName))
             {
@@ -99,13 +99,13 @@ namespace CameraMessage
 
                 lastButtonPressed = cameraButtonName;
                 lastPlayedButton = cameraButtonName;
-                Console.WriteLine("returning true for camera");
+                //Console.WriteLine("returning true for camera");
 
                 return true;
             }
             else
             {
-                Console.WriteLine("returning false for camera");
+                //Console.WriteLine("returning false for camera");
 
                 return false;
             }
@@ -158,7 +158,7 @@ namespace CameraMessage
                     }
                     else
                     {
-                        Console.WriteLine("camera seems to be null");
+                        //Console.WriteLine("camera seems to be null");
                         cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
                     }
 
@@ -199,6 +199,17 @@ namespace CameraMessage
                 {
                     //Console.WriteLine("Save Camera position of " + lastButtonPressed + " was requested.");
                     showMenu = false;
+
+                    if (cameraDictionary.ContainsKey(lastButtonPressed))
+                    {
+                        messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
+                        cameraDictionary.Remove(lastButtonPressed);
+                    }
+                    else
+                    {
+                        messageTextToEdit = string.Empty;
+                    }
+
                     cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, new Vector3(), studioneocam.cameraAngle, studioneocam.fieldOfView));
                 }
 
@@ -215,7 +226,7 @@ namespace CameraMessage
 
             if (playButtonPressed)
             {
-                Console.WriteLine("isplaying?" + isPlaying);
+                //Console.WriteLine("isplaying?" + isPlaying);
 
                 if (!isPlaying)
                 { 
@@ -254,7 +265,7 @@ namespace CameraMessage
                 if (GUILayout.Button("Back"))
                 {
                     playButtonPressed = false;
-                    //TODO: implement
+                    ShowPreviousCamera();
                 }
 
                 if (GUILayout.Button("Next"))
@@ -350,6 +361,72 @@ namespace CameraMessage
                 GUILayout.EndHorizontal();
                 GUILayout.EndArea();
 
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 60, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+                AddCamera("C46");
+                AddCamera("C47");
+                AddCamera("C48");
+                AddCamera("C49");
+                AddCamera("C50");
+                AddCamera("C51");
+                AddCamera("C52");
+                AddCamera("C53");
+                AddCamera("C54");
+                AddCamera("C55");
+                AddCamera("C56");
+                AddCamera("C57");
+                AddCamera("C58");
+                AddCamera("C59");
+                AddCamera("C60");
+
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 80, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+                AddCamera("C61");
+                AddCamera("C62");
+                AddCamera("C63");
+                AddCamera("C64");
+                AddCamera("C65");
+                AddCamera("C66");
+                AddCamera("C67");
+                AddCamera("C68");
+                AddCamera("C69");
+                AddCamera("C70");
+                AddCamera("C71");
+                AddCamera("C72");
+                AddCamera("C73");
+                AddCamera("C74");
+                AddCamera("C75");
+            
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 100, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+                AddCamera("C76");
+                AddCamera("C77");
+                AddCamera("C78");
+                AddCamera("C79");
+                AddCamera("C80");
+                AddCamera("C81");
+                AddCamera("C82");
+                AddCamera("C83");
+                AddCamera("C84");
+                AddCamera("C85");
+                AddCamera("C86");
+                AddCamera("C87");
+                AddCamera("C88");
+                AddCamera("C89");
+                AddCamera("C90");
+
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
 
             }
 
@@ -414,6 +491,12 @@ namespace CameraMessage
 
         }
 
+        private bool ShowPreviousCamera()
+        {
+            string cameraButtonNext = "C" + (int.Parse(lastPlayedButton.Substring(1)) - 1);
+            return SetCameraAndMessage(cameraButtonNext);
+        }
+
         IEnumerator PlayCamerAsCoroutine()
         {
             pluginActive = false;
@@ -421,19 +504,19 @@ namespace CameraMessage
             showTextEditor = false;
 
             isPlaying = true;
-            Console.WriteLine("reached end: " + reachedEnd);
+            //Console.WriteLine("reached end: " + reachedEnd);
 
             do
             {
                 lastplayedTimeStamp = DateTime.Now;
                 reachedEnd = !ShowNextCamera();
-                Console.WriteLine("reached end " + reachedEnd);
+                //Console.WriteLine("reached end " + reachedEnd);
                 yield return new WaitForSeconds(float.Parse(messageDelay));
             } while (!reachedEnd);
 
             if (reachedEnd)
             {
-                Console.WriteLine("setting isplaying false");
+                //Console.WriteLine("setting isplaying false");
                 isPlaying = true;
                 playButtonPressed = false;
                 reachedEnd = true;
@@ -499,6 +582,12 @@ namespace CameraMessage
             {
                 TogglePlugin();
             }
+
+            if (Input.GetKeyDown(KeyCode.LeftControl))
+            {
+                ShowNextCamera();
+            }
+
 
             if (studioneocam == null)
             {

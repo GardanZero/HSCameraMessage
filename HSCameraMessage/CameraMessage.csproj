@@ -64,6 +64,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "C:\Users\Mike\source\repos\PluginTest2\PluginTest2\bin\Debug\CameraMessage.dll" "C:\Games\Steam\H\Honey Select FR2 - FlashBangZ\Plugins" /y</PostBuildEvent>
+    <PostBuildEvent>copy "C:\Users\Mike\source\repos\HSCameraMessage\HSCameraMessage\bin\Debug\CameraMessage.dll" "C:\Games\Steam\H\Honey Select FR2 - FlashBangZ\Plugins" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
