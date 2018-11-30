@@ -33,7 +33,9 @@ namespace CameraMessage
         public static CameraControl_Ver2 camv2 = null;
 
         public static Dictionary<string, CameraPositionAndMessage> cameraDictionary = new Dictionary<string, CameraPositionAndMessage>();
-        
+
+        public bool showDisplayBox { get; private set; }
+
         public void TogglePlugin()
         {
             if (pluginActive)
@@ -42,6 +44,7 @@ namespace CameraMessage
             }
             else
             {
+                showDisplayBox = true;
                 pluginActive = true;
             }
         }
@@ -128,11 +131,30 @@ namespace CameraMessage
             GUI.skin.textArea.wordWrap = true;
 
             // this is the display box of the messages
-            GUILayout.TextArea(currentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+            if (showDisplayBox)
+            { 
+                GUILayout.TextArea(currentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+            }
 
             GUILayout.EndArea();
 
+            if (showDisplayBox)
+            {
 
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+TEXTBOXWIDTH, (float)(Screen.height / 1.3)+TEXTBOXHEIGHT, 40, 60));
+
+                GUILayout.BeginHorizontal();
+
+                if (GUILayout.Button("Hide"))
+                {
+                    showDisplayBox = false;
+                }
+
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
+
+            }
             if (showTextEditor)
             {
                 GUILayout.BeginArea(new Rect((float)(Screen.width / 4), (float)(Screen.height / 3.5), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
@@ -153,13 +175,13 @@ namespace CameraMessage
                             cameraDictionary.Remove(lastButtonPressed);
                         }
 
-                        cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, new Vector3(), studioneocam.cameraAngle, studioneocam.fieldOfView));
-
+                        Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
+                        cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
                     }
                     else
                     {
-                        //Console.WriteLine("camera seems to be null");
-                        cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
+                        Console.WriteLine("Error: StudioNeo Camera not found. (null)");
+                        // cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
                     }
 
                     // debug
@@ -210,7 +232,8 @@ namespace CameraMessage
                         messageTextToEdit = string.Empty;
                     }
 
-                    cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, new Vector3(), studioneocam.cameraAngle, studioneocam.fieldOfView));
+                    Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
+                    cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
                 }
 
                 if (GUILayout.Button("Cancel"))
@@ -578,7 +601,7 @@ namespace CameraMessage
 
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            if (Input.GetKeyDown(KeyCode.RightAlt))
             {
                 TogglePlugin();
             }

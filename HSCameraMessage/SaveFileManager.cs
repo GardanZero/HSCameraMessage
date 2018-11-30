@@ -28,7 +28,7 @@ namespace CameraMessage
                 sb.Append(';');
                 sb.Append(cameraDictionary[key].TargetPos);
                 sb.Append(';');
-                sb.Append(cameraDictionary[key].CameraDir);
+                sb.Append(cameraDictionary[key].CameraDistance);
                 sb.Append(';');
                 sb.Append(cameraDictionary[key].CameraAngle);
                 sb.Append(';');

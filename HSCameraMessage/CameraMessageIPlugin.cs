@@ -8,7 +8,7 @@ namespace CameraMessage
     {
         string IPlugin.Name => "Camera Message";
 
-        string IPlugin.Version => "1.0.0.0";
+        string IPlugin.Version => "1.1.0.0";
 
         void IPlugin.OnApplicationQuit()
         {
