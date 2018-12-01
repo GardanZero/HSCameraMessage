@@ -721,11 +721,9 @@ namespace CameraMessage
             for (int i = 0; i < length; i++)
             {
                 displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
-                yield return new WaitForSeconds(0.08f);
+                yield return new WaitForSeconds(0.06f);
             }
         }
-
-
     }
 }
 
