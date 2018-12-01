@@ -84,32 +84,30 @@ namespace CameraMessage
                 // //Console.WriteLine("Running setcameraAndamessage for "+cameraButtonName);
                 currentMessageText = cameraDictionary[cameraButtonName].Text;
 
-                // //Console.WriteLine("studioneocam: " + studioneocam);
-                // //Console.WriteLine("CameraDir: " + studioneocam.Export().distance.x + "," + studioneocam.Export().distance.y + "," + studioneocam.Export().distance.z;);
-                // //Console.WriteLine("TargetPos: " + studioneocam.targetPos);
-                // //Console.WriteLine("CameraFov: " + studioneocam.fieldOfView);
-                // //Console.WriteLine("CameraAngle: " + studioneocam.cameraAngle);
-
-
                 if (studioneocam != null)
                 {
-                    // Vector3 cameraDir = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
-                    // studioneocam.cam .CameraDir = cameraDictionary[cameraButtonName].CameraDir;
                     studioneocam.targetPos = cameraDictionary[cameraButtonName].TargetPos;
                     studioneocam.fieldOfView = cameraDictionary[cameraButtonName].CameraFov;
                     studioneocam.cameraAngle = cameraDictionary[cameraButtonName].CameraAngle;
+
+                    // to set the distance we need this export and import stuff
+                    Studio.CameraControl.CameraData cameraData = new Studio.CameraControl.CameraData();
+                    cameraData.pos = studioneocam.Export().pos;
+                    cameraData.rotate = studioneocam.Export().rotate;
+                    cameraData.parse = studioneocam.Export().parse;
+                    cameraData.distance = cameraDictionary[cameraButtonName].CameraDistance;
+                    studioneocam.Import(cameraData);
+
                 }
 
                 lastButtonPressed = cameraButtonName;
                 lastPlayedButton = cameraButtonName;
-                //Console.WriteLine("returning true for camera");
 
                 return true;
             }
             else
             {
-                //Console.WriteLine("returning false for camera");
-
+                // the requested camera position was not found
                 return false;
             }
         }
@@ -606,9 +604,14 @@ namespace CameraMessage
                 TogglePlugin();
             }
 
-            if (Input.GetKeyDown(KeyCode.LeftControl))
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.CapsLock))
             {
                 ShowNextCamera();
+            }
+
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Q))
+            {
+                ShowPreviousCamera();
             }
 
 
