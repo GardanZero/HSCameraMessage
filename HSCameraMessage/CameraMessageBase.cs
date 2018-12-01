@@ -27,10 +27,14 @@ namespace CameraMessage
         public static string lastButtonPressed = "C1";
         public static string lastPlayedButton = "C0";
         public string messageTextToEdit = "";
-        public string currentMessageText = "";
+        public string loadedMessageText = "";
+        public string displayedCurrentMessageText = "";
+        
         public static Studio.CameraControl studioneocam = null;
         public static BaseCameraControl basecam = null;
         public static CameraControl_Ver2 camv2 = null;
+
+
 
         public static Dictionary<string, CameraPositionAndMessage> cameraDictionary = new Dictionary<string, CameraPositionAndMessage>();
 
@@ -82,7 +86,8 @@ namespace CameraMessage
             {
 
                 // //Console.WriteLine("Running setcameraAndamessage for "+cameraButtonName);
-                currentMessageText = cameraDictionary[cameraButtonName].Text;
+                loadedMessageText = cameraDictionary[cameraButtonName].Text;
+                displayedCurrentMessageText = string.Empty;
 
                 if (studioneocam != null)
                 {
@@ -100,6 +105,9 @@ namespace CameraMessage
 
                 }
 
+                //TEST THIS -> works basically, but does not clear old message when clicking another button
+                StartCoroutine("DisplayMessageCoRoutine");
+
                 lastButtonPressed = cameraButtonName;
                 lastPlayedButton = cameraButtonName;
 
@@ -114,11 +122,8 @@ namespace CameraMessage
 
         public void OnGUI()
         {
-
             // show dialog box
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
-
-            /// Todo future: make text appear one char at a time
 
             GUIStyle largeTextStyle = new GUIStyle();
             largeTextStyle.fontSize = 30;
@@ -131,7 +136,7 @@ namespace CameraMessage
             // this is the display box of the messages
             if (showDisplayBox)
             { 
-                GUILayout.TextArea(currentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+                GUILayout.TextArea(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
             }
 
             GUILayout.EndArea();
@@ -280,7 +285,7 @@ namespace CameraMessage
                     reachedEnd = true;
                     lastPlayedButton = "C0";
                     lastButtonPressed = "C1";
-                    currentMessageText = "";
+                    loadedMessageText = "";
                 }
 
                 if (GUILayout.Button("Back"))
@@ -708,6 +713,18 @@ namespace CameraMessage
             }
             return camv2;
         }
+
+        IEnumerator DisplayMessageCoRoutine()
+        {
+            int length = loadedMessageText.Length;
+
+            for (int i = 0; i < length; i++)
+            {
+                displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
+                yield return new WaitForSeconds(0.08f);
+            }
+        }
+
 
     }
 }
