@@ -106,8 +106,6 @@ namespace CameraMessage
                 bunchOfButtons[i] = new GUIContent(cameraLabelCache[i]);
             }
 
-
-
         }
 
         private void InitializeStyles()
@@ -397,14 +395,14 @@ namespace CameraMessage
                 loadDialogVisible = true;
             }
 
+
+            // todo: make a slider
             GUILayout.Label("  Delay between Messages: ");
 
             messageDelay = GUILayout.TextField(messageDelay, new GUILayoutOption[0]);
 
             GUILayout.EndHorizontal();
-
             GUILayout.EndArea();
-
 
 
             // better performance with scrollarea
@@ -416,9 +414,6 @@ namespace CameraMessage
 
             DrawCameraButtons();
 
-
-            // sooo slooow
-            // StartCoroutine("DrawCameraButtonsCoRoutine");
         }
 
         private void ShowMenu()
@@ -494,11 +489,7 @@ namespace CameraMessage
                 else
                 {
                     Console.WriteLine("Error: StudioNeo Camera not found. (null)");
-                    // cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
                 }
-
-                // debug
-                //Console.WriteLine("Text was saved to " + lastButtonPressed + " and it was " + cameraDictionary[lastButtonPressed].Text);
 
             }
 
@@ -534,56 +525,12 @@ namespace CameraMessage
                 }
             }
 
-            //for (; index < buttons.Length (index * buttonHeight) < listScroller.y + position.height; index++)
             for (; index < buttons.Length; index++)
             {
                 AddCameraButtonGUI(new Rect(0, index * buttonHeight, position.width - 16, buttonHeight), cameraLabelCache[index]);
             }
 
             GUI.EndScrollView();
-
-
-
-            /*float startXpos = 640;
-                float startYpos = 610;
-                float buttonWidth = 40;
-                float buttonHeigth = 20;
-
-
-
-                for (int i = 0; i < 90; i++)
-                {
-                    if (i <= 15)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 15 && i < 30)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 20, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 30 && i < 45)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 40, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 45 && i < 60)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 60, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 60 && i < 75)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 80, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 75 && i < 90)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 100, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                    else if (i >= 90)
-                    {
-                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 120, buttonWidth, buttonHeigth), cameraLabelCache[i]);
-                    }
-                }
-
-*/
         }
 
         private bool ShowPreviousCamera()
@@ -599,19 +546,16 @@ namespace CameraMessage
             showTextEditor = false;
 
             isPlaying = true;
-            //Console.WriteLine("reached end: " + reachedEnd);
 
             do
             {
                 lastplayedTimeStamp = DateTime.Now;
                 reachedEnd = !ShowNextCamera();
-                //Console.WriteLine("reached end " + reachedEnd);
                 yield return new WaitForSeconds(float.Parse(messageDelay));
             } while (!reachedEnd);
 
             if (reachedEnd)
             {
-                //Console.WriteLine("setting isplaying false");
                 isPlaying = true;
                 playButtonPressed = false;
                 reachedEnd = true;
@@ -626,10 +570,7 @@ namespace CameraMessage
 
         private void AddCameraButtonGUI(Rect position, string cameraName)
         {
-            // TODO, selecting the Style takes up huge computing time... how to improve?
-            //            if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
-            if (GUI.Button(position, cameraName))
-
+            if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
             {
                 lastButtonPressed = cameraName;
 
@@ -652,15 +593,7 @@ namespace CameraMessage
 
         private void AddCameraButtonGUILayout(string cameraName)
         {
-            // TODO: investigate why getcorrectstyle uses so much computing power
-
-            //Console.WriteLine("add camera button entered");
-
-            //Console.WriteLine("running get correct style: " + GetCorrectStyle(cameraName));
-
-
             if (GUILayout.Button(cameraName, GetCorrectStyle(cameraName), new GUILayoutOption[0]))
-            //if (GUILayout.Button(cameraName, new GUILayoutOption[0]))
             {
                 lastButtonPressed = cameraName;
 
@@ -679,7 +612,6 @@ namespace CameraMessage
 
         private GUIStyle GetCorrectStyle(string cameraName)
         {
-
             if (cameraDictionary.ContainsKey(cameraName) && lastButtonPressed == cameraName)
             {
                 return cameraButtonSelectedStyle;
@@ -746,9 +678,6 @@ namespace CameraMessage
                 studioneocam = array[num];
                 //Console.WriteLine("camera 1 found" + studioneocam);
             }
-
-
-
         }
 
         public BaseCameraControl getCameraBase()
@@ -788,8 +717,6 @@ namespace CameraMessage
 
         public CameraControl_Ver2 getCameraV2()
         {
-            //Console.WriteLine("getCameraV2() entered");
-
             if (camv2 != null)
             {
                 return camv2;
@@ -800,7 +727,6 @@ namespace CameraMessage
             if (num < array.Length)
             {
                 CameraControl_Ver2 cameraControl_Ver = camv2 = array[num];
-                //Console.WriteLine("camera 3 found" + studioneocam);
             }
             return camv2;
         }
@@ -951,150 +877,6 @@ namespace CameraMessage
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
-
-        }
-
-
-        IEnumerator DrawCameraButtonsCoRoutine()
-        {
-
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75), (float)(Screen.width / 3), (float)(Screen.height / 2)));
-
-            // Camera Buttons below
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C1");
-            AddCameraButtonGUILayout("C2");
-            AddCameraButtonGUILayout("C3");
-            AddCameraButtonGUILayout("C4");
-            AddCameraButtonGUILayout("C5");
-            AddCameraButtonGUILayout("C6");
-            AddCameraButtonGUILayout("C7");
-            AddCameraButtonGUILayout("C8");
-            AddCameraButtonGUILayout("C9");
-            AddCameraButtonGUILayout("C10");
-            AddCameraButtonGUILayout("C11");
-            AddCameraButtonGUILayout("C12");
-            AddCameraButtonGUILayout("C13");
-            AddCameraButtonGUILayout("C14");
-            AddCameraButtonGUILayout("C15");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 20, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C16");
-            AddCameraButtonGUILayout("C17");
-            AddCameraButtonGUILayout("C18");
-            AddCameraButtonGUILayout("C19");
-            AddCameraButtonGUILayout("C20");
-            AddCameraButtonGUILayout("C21");
-            AddCameraButtonGUILayout("C22");
-            AddCameraButtonGUILayout("C23");
-            AddCameraButtonGUILayout("C24");
-            AddCameraButtonGUILayout("C25");
-            AddCameraButtonGUILayout("C26");
-            AddCameraButtonGUILayout("C27");
-            AddCameraButtonGUILayout("C28");
-            AddCameraButtonGUILayout("C29");
-            AddCameraButtonGUILayout("C30");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 40, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C31");
-            AddCameraButtonGUILayout("C32");
-            AddCameraButtonGUILayout("C33");
-            AddCameraButtonGUILayout("C34");
-            AddCameraButtonGUILayout("C35");
-            AddCameraButtonGUILayout("C36");
-            AddCameraButtonGUILayout("C37");
-            AddCameraButtonGUILayout("C38");
-            AddCameraButtonGUILayout("C39");
-            AddCameraButtonGUILayout("C40");
-            AddCameraButtonGUILayout("C41");
-            AddCameraButtonGUILayout("C42");
-            AddCameraButtonGUILayout("C43");
-            AddCameraButtonGUILayout("C44");
-            AddCameraButtonGUILayout("C45");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 60, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C46");
-            AddCameraButtonGUILayout("C47");
-            AddCameraButtonGUILayout("C48");
-            AddCameraButtonGUILayout("C49");
-            AddCameraButtonGUILayout("C50");
-            AddCameraButtonGUILayout("C51");
-            AddCameraButtonGUILayout("C52");
-            AddCameraButtonGUILayout("C53");
-            AddCameraButtonGUILayout("C54");
-            AddCameraButtonGUILayout("C55");
-            AddCameraButtonGUILayout("C56");
-            AddCameraButtonGUILayout("C57");
-            AddCameraButtonGUILayout("C58");
-            AddCameraButtonGUILayout("C59");
-            AddCameraButtonGUILayout("C60");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 80, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C61");
-            AddCameraButtonGUILayout("C62");
-            AddCameraButtonGUILayout("C63");
-            AddCameraButtonGUILayout("C64");
-            AddCameraButtonGUILayout("C65");
-            AddCameraButtonGUILayout("C66");
-            AddCameraButtonGUILayout("C67");
-            AddCameraButtonGUILayout("C68");
-            AddCameraButtonGUILayout("C69");
-            AddCameraButtonGUILayout("C70");
-            AddCameraButtonGUILayout("C71");
-            AddCameraButtonGUILayout("C72");
-            AddCameraButtonGUILayout("C73");
-            AddCameraButtonGUILayout("C74");
-            AddCameraButtonGUILayout("C75");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 100, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-            AddCameraButtonGUILayout("C76");
-            AddCameraButtonGUILayout("C77");
-            AddCameraButtonGUILayout("C78");
-            AddCameraButtonGUILayout("C79");
-            AddCameraButtonGUILayout("C80");
-            AddCameraButtonGUILayout("C81");
-            AddCameraButtonGUILayout("C82");
-            AddCameraButtonGUILayout("C83");
-            AddCameraButtonGUILayout("C84");
-            AddCameraButtonGUILayout("C85");
-            AddCameraButtonGUILayout("C86");
-            AddCameraButtonGUILayout("C87");
-            AddCameraButtonGUILayout("C88");
-            AddCameraButtonGUILayout("C89");
-            AddCameraButtonGUILayout("C90");
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-
-
-            yield return new WaitForSeconds(0.5f);
 
         }
     }
