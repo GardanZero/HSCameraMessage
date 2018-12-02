@@ -1097,42 +1097,6 @@ namespace CameraMessage
             yield return new WaitForSeconds(0.5f);
 
         }
-
-        /*
-         * keep for now
-         * 
-         * 
-
-                     * 
-         * */
-
-
-        /*
-         * not used
-         * 
-                IEnumerator AddCameraButtonGUICoRoutine(Rect position, string cameraName)
-                {
-                    if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
-                    {
-                        lastButtonPressed = cameraName;
-
-                        //left click
-                        if (Input.GetMouseButtonUp(0))
-                        {
-                            SetCameraAndMessage(lastButtonPressed);
-                        }
-                        // right click
-                        else if (Input.GetMouseButtonUp(1))
-                        {
-                            ToggleMainMenu();
-                        }
-                    }
-
-                    yield return new WaitForSeconds(0.1f);
-                }
-
-            */
-
     }
 }
 
