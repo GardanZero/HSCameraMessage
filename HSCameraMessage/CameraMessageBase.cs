@@ -28,6 +28,7 @@ namespace CameraMessage
         public static DateTime lastplayedTimeStamp;
         public static bool isPlaying = false;
         public bool showDisplayBox { get; private set; }
+        public static bool stylesAreInitialized = false;
 
         public static string messageDelay = "8";
         public static string saveFileName = "Enter Filename here";
@@ -36,11 +37,16 @@ namespace CameraMessage
         public string messageTextToEdit = "";
         public string loadedMessageText = "";
         public string displayedCurrentMessageText = "";
-        
+
         public static Studio.CameraControl studioneocam = null;
         public static BaseCameraControl basecam = null;
         public static CameraControl_Ver2 camv2 = null;
         public static Dictionary<string, CameraPositionAndMessage> cameraDictionary = new Dictionary<string, CameraPositionAndMessage>();
+
+        public static GUIStyle cameraButtonNormalStyle;
+        public static GUIStyle cameraButtonSavedStyle;
+        public static GUIStyle cameraButtonSelectedStyle;
+        public static GUIStyle largeTextStyle;
 
         public void InitializeCaches()
         {
@@ -100,6 +106,35 @@ namespace CameraMessage
                 bunchOfButtons[i] = new GUIContent(cameraLabelCache[i]);
             }
 
+
+
+        }
+
+        private void InitializeStyles()
+        {
+            // button styles
+            cameraButtonNormalStyle = new GUIStyle(GUI.skin.button);
+            cameraButtonNormalStyle.normal.textColor = Color.white;
+            cameraButtonNormalStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
+
+            cameraButtonSavedStyle = new GUIStyle(GUI.skin.button);
+            cameraButtonSavedStyle.normal.textColor = Color.white;
+            cameraButtonSavedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 1.0f, 0.2f));
+
+            cameraButtonSelectedStyle = new GUIStyle(GUI.skin.button);
+            cameraButtonSelectedStyle.normal.textColor = Color.white;
+            cameraButtonSelectedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 1.0f, 0.0f, 0.2f));
+
+            // big text style
+            largeTextStyle = new GUIStyle();
+            largeTextStyle.fontSize = 30;
+            largeTextStyle.normal.textColor = Color.white;
+            largeTextStyle.wordWrap = true;
+            largeTextStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
+
+            GUI.skin.textArea.wordWrap = true;
+
+            stylesAreInitialized = true;
         }
 
 
@@ -184,22 +219,17 @@ namespace CameraMessage
 
         public void OnGUI()
         {
+            if (!stylesAreInitialized)
+            {
+                InitializeStyles();
+            }
 
-
-            // show dialog box
+            // display box
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
-
-            GUIStyle largeTextStyle = new GUIStyle();
-            largeTextStyle.fontSize = 30;
-            largeTextStyle.normal.textColor = Color.white;
-            largeTextStyle.wordWrap = true;
-            largeTextStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
-
-            GUI.skin.textArea.wordWrap = true;
 
             // this is the display box of the messages
             if (showDisplayBox)
-            { 
+            {
                 GUILayout.TextArea(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
             }
 
@@ -208,7 +238,7 @@ namespace CameraMessage
             if (showDisplayBox)
             {
 
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+TEXTBOXWIDTH, (float)(Screen.height / 1.3)+TEXTBOXHEIGHT, 40, 60));
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3) + TEXTBOXWIDTH, (float)(Screen.height / 1.3) + TEXTBOXHEIGHT, 40, 60));
 
                 GUILayout.BeginHorizontal();
 
@@ -219,99 +249,17 @@ namespace CameraMessage
 
                 GUILayout.EndHorizontal();
                 GUILayout.EndArea();
-
-
             }
+
             if (showTextEditor)
             {
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 4), (float)(Screen.height / 3.5), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
-
-                GUILayout.BeginVertical(new GUILayoutOption[0]);
-
-                // this is the editor text box
-                messageTextToEdit = GUILayout.TextArea(messageTextToEdit, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
-
-                if (GUILayout.Button("Save"))
-                {
-                    ToggleTextEditor();
-
-                    if (studioneocam != null)
-                    {
-                        if (cameraDictionary.ContainsKey(lastButtonPressed))
-                        {
-                            cameraDictionary.Remove(lastButtonPressed);
-                        }
-
-                        Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
-                        cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error: StudioNeo Camera not found. (null)");
-                        // cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
-                    }
-
-                    // debug
-                    //Console.WriteLine("Text was saved to " + lastButtonPressed + " and it was " + cameraDictionary[lastButtonPressed].Text);
-
-                }
-
-
-                if (GUILayout.Button("Cancel"))
-                {
-                    ToggleTextEditor();
-                }
-
-                GUILayout.EndVertical();
-                GUILayout.EndArea();
+                ShowTextEditor();
             }
 
             // Menu shown to do stuff
             if (showMenu)
             {
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 2)));
-
-                GUILayout.BeginVertical(new GUILayoutOption[0]);
-
-                if (GUILayout.Button("Edit Text and save camera position"))
-                {
-                    //Console.WriteLine("Edit Text of " + lastButtonPressed + " was requested.");
-                    ToggleMainMenu();
-                    if (cameraDictionary.ContainsKey(lastButtonPressed))
-                    {
-                        messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
-                    }
-                    ToggleTextEditor();
-                }
-
-                if (GUILayout.Button("Save Camera position"))
-                {
-                    //Console.WriteLine("Save Camera position of " + lastButtonPressed + " was requested.");
-                    showMenu = false;
-
-                    if (cameraDictionary.ContainsKey(lastButtonPressed))
-                    {
-                        messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
-                        cameraDictionary.Remove(lastButtonPressed);
-                    }
-                    else
-                    {
-                        messageTextToEdit = string.Empty;
-                    }
-
-                    Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
-                    cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
-                }
-
-                if (GUILayout.Button("Cancel"))
-                {
-                    //Console.WriteLine("Cancelled menu.");
-                    ToggleMainMenu();
-                }
-
-                GUILayout.EndVertical();
-
-                GUILayout.EndArea();
+                ShowMenu();
             }
 
             if (playButtonPressed)
@@ -319,145 +267,249 @@ namespace CameraMessage
                 //Console.WriteLine("isplaying?" + isPlaying);
 
                 if (!isPlaying)
-                { 
+                {
                     StartCoroutine("PlayCamerAsCoroutine");
                 }
             }
 
             if (pluginActive)
             {
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.9), (float)(Screen.width / 4), (float)(Screen.height / 2)));
-
-                // Menubuttons
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                if (GUILayout.Button("Play"))
-                {
-                    isPlaying = false;
-
-                    if (!playButtonPressed)
-                    { 
-                        reachedEnd = false;
-                        playButtonPressed = true;
-                    }
-                }
-
-                if (GUILayout.Button("Stop"))
-                {
-                    playButtonPressed = false;
-                    isPlaying = false;
-                    reachedEnd = true;
-                    lastPlayedButton = "C0";
-                    lastButtonPressed = "C1";
-                    loadedMessageText = "";
-                }
-
-                if (GUILayout.Button("Back"))
-                {
-                    playButtonPressed = false;
-                    ShowPreviousCamera();
-                }
-
-                if (GUILayout.Button("Next"))
-                {
-                    playButtonPressed = false;
-                    ShowNextCamera();
-                }
-
-                if (GUILayout.Button("Save"))
-                {
-                    saveDialogVisible = true;
-                }
-
-                if (GUILayout.Button("Load"))
-                {
-                    loadDialogVisible = true;
-                }
-
-                GUILayout.Label("  Delay between Messages: ");
-
-                messageDelay = GUILayout.TextField(messageDelay, new GUILayoutOption[0]);
-                
-                GUILayout.EndHorizontal();
-
-                GUILayout.EndArea();
-
-
-
-                // better performance with scrollarea
-                /*
-                GUI.BeginGroup(new Rect(640, 620, 50, 300), "", "box");
-                DoScrollArea(new Rect(0, 0, 50, 300), bunchOfButtons, 32);
-                GUI.EndGroup();
-                */
-
-                DrawCameraButtons();
-
-
-                // sooo slooow
-                // StartCoroutine("DrawCameraButtonsCoRoutine");
-
+                ShowMainAndCameraButtons();
             }
 
             if (saveDialogVisible)
             {
-                loadDialogVisible = false;
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), 120f));
-                GUILayout.BeginVertical(new GUIStyle("Box"), (GUILayoutOption[])new GUILayoutOption[0]);
-                Vector2 vector = GUILayout.BeginScrollView(default(Vector2), (GUILayoutOption[])new GUILayoutOption[1]
-                {
-                GUILayout.Height((float)(Screen.height / 3))
-                });
-                GUILayout.Label("Save Camera and Message Settings", (GUILayoutOption[])new GUILayoutOption[0]);
-                string a = GUILayout.TextField(saveFileName, 100, (GUILayoutOption[])new GUILayoutOption[0]);
-                if (a != saveFileName)
-                {
-                    saveFileName = a;
-                }
-                if (GUILayout.Button("Save", (GUILayoutOption[])new GUILayoutOption[0]) && saveFileName != "Enter Filename here")
-                {
-                    SaveFileManager sfm = new SaveFileManager();
-                    sfm.SaveToFile(cameraDictionary, saveFileName);
-                    saveDialogVisible = false;
-                }
-                if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
-                {
-                    saveDialogVisible = false;
-                }
-                GUILayout.EndScrollView();
-                GUILayout.EndVertical();
-                GUILayout.EndArea();
+                ShowSaveDialog();
             }
             if (loadDialogVisible)
             {
-                saveDialogVisible = false;
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 3)));
-                GUILayout.BeginVertical(new GUIStyle("Box"), (GUILayoutOption[])new GUILayoutOption[0]);
-                Vector2 vector2 = GUILayout.BeginScrollView(default(Vector2), (GUILayoutOption[])new GUILayoutOption[1]
-                {
+                ShowLoadDialog();
+            }
+        }
+
+        private static void ShowLoadDialog()
+        {
+            saveDialogVisible = false;
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 3)));
+            GUILayout.BeginVertical(new GUIStyle("Box"), (GUILayoutOption[])new GUILayoutOption[0]);
+            Vector2 vector2 = GUILayout.BeginScrollView(default(Vector2), (GUILayoutOption[])new GUILayoutOption[1]
+            {
                 GUILayout.Height((float)(Screen.height / 3))
-                });
-                GUILayout.Label("Load Camera Message Settings ", (GUILayoutOption[])new GUILayoutOption[0]);
-                FolderAssist folderAssist = new FolderAssist();
-                folderAssist.CreateFolderInfo(UserData.Path + "cameramessage/", "*.csv", true, true);
-                foreach (FolderAssist.FileInfo item6 in folderAssist.lstFile)
+            });
+            GUILayout.Label("Load Camera Message Settings ", (GUILayoutOption[])new GUILayoutOption[0]);
+            FolderAssist folderAssist = new FolderAssist();
+            folderAssist.CreateFolderInfo(UserData.Path + "cameramessage/", "*.csv", true, true);
+            foreach (FolderAssist.FileInfo item6 in folderAssist.lstFile)
+            {
+                if (GUILayout.Button(item6.FileName, (GUILayoutOption[])new GUILayoutOption[0]))
                 {
-                    if (GUILayout.Button(item6.FileName, (GUILayoutOption[])new GUILayoutOption[0]))
-                    {
-                        SaveFileManager sfm = new SaveFileManager();
-                        cameraDictionary = sfm.LoadFile(item6.FileName);
-                        loadDialogVisible = false;
-                    }
-                }
-                if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
-                {
+                    SaveFileManager sfm = new SaveFileManager();
+                    cameraDictionary = sfm.LoadFile(item6.FileName);
                     loadDialogVisible = false;
                 }
-                GUILayout.EndScrollView();
-                GUILayout.EndVertical();
-                GUILayout.EndArea();
+            }
+            if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
+            {
+                loadDialogVisible = false;
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+        }
+
+        private static void ShowSaveDialog()
+        {
+            loadDialogVisible = false;
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), 120f));
+            GUILayout.BeginVertical(new GUIStyle("Box"), (GUILayoutOption[])new GUILayoutOption[0]);
+            Vector2 vector = GUILayout.BeginScrollView(default(Vector2), (GUILayoutOption[])new GUILayoutOption[1]
+            {
+                GUILayout.Height((float)(Screen.height / 3))
+            });
+            GUILayout.Label("Save Camera and Message Settings", (GUILayoutOption[])new GUILayoutOption[0]);
+            string a = GUILayout.TextField(saveFileName, 100, (GUILayoutOption[])new GUILayoutOption[0]);
+            if (a != saveFileName)
+            {
+                saveFileName = a;
+            }
+            if (GUILayout.Button("Save", (GUILayoutOption[])new GUILayoutOption[0]) && saveFileName != "Enter Filename here")
+            {
+                SaveFileManager sfm = new SaveFileManager();
+                sfm.SaveToFile(cameraDictionary, saveFileName);
+                saveDialogVisible = false;
+            }
+            if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
+            {
+                saveDialogVisible = false;
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+        }
+
+        private void ShowMainAndCameraButtons()
+        {
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.9), (float)(Screen.width / 4), (float)(Screen.height / 2)));
+
+            // Menubuttons
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            if (GUILayout.Button("Play"))
+            {
+                isPlaying = false;
+
+                if (!playButtonPressed)
+                {
+                    reachedEnd = false;
+                    playButtonPressed = true;
+                }
             }
 
+            if (GUILayout.Button("Stop"))
+            {
+                playButtonPressed = false;
+                isPlaying = false;
+                reachedEnd = true;
+                lastPlayedButton = "C0";
+                lastButtonPressed = "C1";
+                loadedMessageText = "";
+            }
+
+            if (GUILayout.Button("Back"))
+            {
+                playButtonPressed = false;
+                ShowPreviousCamera();
+            }
+
+            if (GUILayout.Button("Next"))
+            {
+                playButtonPressed = false;
+                ShowNextCamera();
+            }
+
+            if (GUILayout.Button("Save"))
+            {
+                saveDialogVisible = true;
+            }
+
+            if (GUILayout.Button("Load"))
+            {
+                loadDialogVisible = true;
+            }
+
+            GUILayout.Label("  Delay between Messages: ");
+
+            messageDelay = GUILayout.TextField(messageDelay, new GUILayoutOption[0]);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndArea();
+
+
+
+            // better performance with scrollarea
+            /*
+            GUI.BeginGroup(new Rect(640, 620, 50, 300), "", "box");
+            DoScrollArea(new Rect(0, 0, 50, 300), bunchOfButtons, 32);
+            GUI.EndGroup();
+            */
+
+            DrawCameraButtons();
+
+
+            // sooo slooow
+            // StartCoroutine("DrawCameraButtonsCoRoutine");
+        }
+
+        private void ShowMenu()
+        {
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 2)));
+
+            GUILayout.BeginVertical(new GUILayoutOption[0]);
+
+            if (GUILayout.Button("Edit Text and save camera position"))
+            {
+                //Console.WriteLine("Edit Text of " + lastButtonPressed + " was requested.");
+                ToggleMainMenu();
+                if (cameraDictionary.ContainsKey(lastButtonPressed))
+                {
+                    messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
+                }
+                ToggleTextEditor();
+            }
+
+            if (GUILayout.Button("Save Camera position"))
+            {
+                //Console.WriteLine("Save Camera position of " + lastButtonPressed + " was requested.");
+                showMenu = false;
+
+                if (cameraDictionary.ContainsKey(lastButtonPressed))
+                {
+                    messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
+                    cameraDictionary.Remove(lastButtonPressed);
+                }
+                else
+                {
+                    messageTextToEdit = string.Empty;
+                }
+
+                Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
+                cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
+            }
+
+            if (GUILayout.Button("Cancel"))
+            {
+                //Console.WriteLine("Cancelled menu.");
+                ToggleMainMenu();
+            }
+
+            GUILayout.EndVertical();
+
+            GUILayout.EndArea();
+        }
+
+        private void ShowTextEditor()
+        {
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 4), (float)(Screen.height / 3.5), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
+
+            GUILayout.BeginVertical(new GUILayoutOption[0]);
+
+            // this is the editor text box
+            messageTextToEdit = GUILayout.TextArea(messageTextToEdit, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+
+            if (GUILayout.Button("Save"))
+            {
+                ToggleTextEditor();
+
+                if (studioneocam != null)
+                {
+                    if (cameraDictionary.ContainsKey(lastButtonPressed))
+                    {
+                        cameraDictionary.Remove(lastButtonPressed);
+                    }
+
+                    Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
+                    cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
+                }
+                else
+                {
+                    Console.WriteLine("Error: StudioNeo Camera not found. (null)");
+                    // cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, new Vector3(), new Vector3(), new Vector3(), 110));
+                }
+
+                // debug
+                //Console.WriteLine("Text was saved to " + lastButtonPressed + " and it was " + cameraDictionary[lastButtonPressed].Text);
+
+            }
+
+
+            if (GUILayout.Button("Cancel"))
+            {
+                ToggleTextEditor();
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
         }
 
         private void DoScrollArea(Rect position, GUIContent[] buttons, int buttonHeight)
@@ -467,13 +519,14 @@ namespace CameraMessage
             int index = 0;
 
             if (buttons.Length > 0)
-            { 
+            {
                 height = ((buttons.Length - 1) * buttonHeight);
             }
 
             listScroller = GUI.BeginScrollView(position, listScroller, new Rect(0, 0, position.width - 20, height + buttonHeight));
 
-            for (index = 0; index < buttons.Length; index++) { 
+            for (index = 0; index < buttons.Length; index++)
+            {
 
                 if (((index + 1) * buttonHeight) > listScroller.y)
                 {
@@ -483,13 +536,13 @@ namespace CameraMessage
 
             //for (; index < buttons.Length (index * buttonHeight) < listScroller.y + position.height; index++)
             for (; index < buttons.Length; index++)
-            { 
+            {
                 AddCameraButtonGUI(new Rect(0, index * buttonHeight, position.width - 16, buttonHeight), cameraLabelCache[index]);
             }
 
             GUI.EndScrollView();
 
-             
+
 
             /*float startXpos = 640;
                 float startYpos = 610;
@@ -575,12 +628,12 @@ namespace CameraMessage
         {
             // TODO, selecting the Style takes up huge computing time... how to improve?
             //            if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
-                if (GUI.Button(position, cameraName))
+            if (GUI.Button(position, cameraName))
 
-                {
-                    lastButtonPressed = cameraName;
+            {
+                lastButtonPressed = cameraName;
 
-                
+
                 //left click
                 if (Input.GetMouseButtonUp(0))
                 {
@@ -591,7 +644,7 @@ namespace CameraMessage
                 {
                     ToggleMainMenu();
                 }
-                
+
             }
 
         }
@@ -601,8 +654,13 @@ namespace CameraMessage
         {
             // TODO: investigate why getcorrectstyle uses so much computing power
 
-            //if (GUILayout.Button(cameraName, GetCorrectStyle(cameraName), new GUILayoutOption[0]))
-            if (GUILayout.Button(cameraName, new GUILayoutOption[0]))
+            //Console.WriteLine("add camera button entered");
+
+            //Console.WriteLine("running get correct style: " + GetCorrectStyle(cameraName));
+
+
+            if (GUILayout.Button(cameraName, GetCorrectStyle(cameraName), new GUILayoutOption[0]))
+            //if (GUILayout.Button(cameraName, new GUILayoutOption[0]))
             {
                 lastButtonPressed = cameraName;
 
@@ -621,19 +679,7 @@ namespace CameraMessage
 
         private GUIStyle GetCorrectStyle(string cameraName)
         {
-            GUIStyle cameraButtonNormalStyle = new GUIStyle(GUI.skin.button);
-            cameraButtonNormalStyle.normal.textColor = Color.white;
-            cameraButtonNormalStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
 
-            GUIStyle cameraButtonSavedStyle = new GUIStyle(GUI.skin.button);
-            cameraButtonSavedStyle.normal.textColor = Color.white;
-            cameraButtonSavedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 1.0f, 0.2f));
-
-            GUIStyle cameraButtonSelectedStyle = new GUIStyle(GUI.skin.button);
-            cameraButtonSelectedStyle.normal.textColor = Color.white;
-            cameraButtonSelectedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 1.0f, 0.0f, 0.2f));
-
-            
             if (cameraDictionary.ContainsKey(cameraName) && lastButtonPressed == cameraName)
             {
                 return cameraButtonSelectedStyle;
@@ -772,7 +818,7 @@ namespace CameraMessage
 
         private void DrawCameraButtons()
         {
-            GUILayout.BeginArea(new Rect((Screen.width / 3), (float)(Screen.height / 1.75), (Screen.width / 3), (Screen.height / 2)+50));
+            GUILayout.BeginArea(new Rect((Screen.width / 3), (float)(Screen.height / 1.75), (Screen.width / 3), (Screen.height / 2) + 50));
 
             // Camera Buttons below
             GUILayout.BeginHorizontal(new GUILayoutOption[0]);
@@ -1061,32 +1107,32 @@ namespace CameraMessage
          * */
 
 
-            /*
-             * not used
-             * 
-                    IEnumerator AddCameraButtonGUICoRoutine(Rect position, string cameraName)
+        /*
+         * not used
+         * 
+                IEnumerator AddCameraButtonGUICoRoutine(Rect position, string cameraName)
+                {
+                    if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
                     {
-                        if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
+                        lastButtonPressed = cameraName;
+
+                        //left click
+                        if (Input.GetMouseButtonUp(0))
                         {
-                            lastButtonPressed = cameraName;
-
-                            //left click
-                            if (Input.GetMouseButtonUp(0))
-                            {
-                                SetCameraAndMessage(lastButtonPressed);
-                            }
-                            // right click
-                            else if (Input.GetMouseButtonUp(1))
-                            {
-                                ToggleMainMenu();
-                            }
+                            SetCameraAndMessage(lastButtonPressed);
                         }
-
-                        yield return new WaitForSeconds(0.1f);
+                        // right click
+                        else if (Input.GetMouseButtonUp(1))
+                        {
+                            ToggleMainMenu();
+                        }
                     }
 
-                */
+                    yield return new WaitForSeconds(0.1f);
+                }
 
-        }
+            */
+
     }
+}
 
