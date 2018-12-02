@@ -284,6 +284,8 @@ namespace CameraMessage
 
         private static void ShowLoadDialog()
         {
+            pluginActive = false;
+
             saveDialogVisible = false;
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 3)));
             GUILayout.BeginVertical(new GUIStyle("Box"), (GUILayoutOption[])new GUILayoutOption[0]);
@@ -301,15 +303,19 @@ namespace CameraMessage
                     SaveFileManager sfm = new SaveFileManager();
                     cameraDictionary = sfm.LoadFile(item6.FileName);
                     loadDialogVisible = false;
+                    pluginActive = true;
                 }
             }
             if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
             {
                 loadDialogVisible = false;
+                pluginActive = true;
             }
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
             GUILayout.EndArea();
+
+            
         }
 
         private static void ShowSaveDialog()
@@ -442,7 +448,6 @@ namespace CameraMessage
                     try
                     {
                         string textSpeedConvString = "0.0" + textSpeedString;
-                        Console.WriteLine("conv: '" + textSpeedConvString + "'");
                         textSpeed = float.Parse(textSpeedConvString);
                     }
                     catch (Exception e)
@@ -451,8 +456,6 @@ namespace CameraMessage
                         textSpeedString = "4";
                         textSpeed = 0.04f;
                     }
-
-                    Console.WriteLine("Textspeed is now " + textSpeed);
 
                 }
 
@@ -717,7 +720,6 @@ namespace CameraMessage
 
             int length = loadedMessageText.Length;
 
-            Console.WriteLine("using Textspeed " + textSpeed);
 
             for (int i = 0; i < length; i++)
             {
