@@ -113,22 +113,22 @@ namespace CameraMessage
             // button styles
             cameraButtonNormalStyle = new GUIStyle(GUI.skin.button);
             cameraButtonNormalStyle.normal.textColor = Color.white;
-            cameraButtonNormalStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
+            cameraButtonNormalStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
 
             cameraButtonSavedStyle = new GUIStyle(GUI.skin.button);
             cameraButtonSavedStyle.normal.textColor = Color.white;
-            cameraButtonSavedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 1.0f, 0.2f));
+            cameraButtonSavedStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 0.0f, 1.0f, 0.2f));
 
             cameraButtonSelectedStyle = new GUIStyle(GUI.skin.button);
             cameraButtonSelectedStyle.normal.textColor = Color.white;
-            cameraButtonSelectedStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 1.0f, 0.0f, 0.2f));
+            cameraButtonSelectedStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 1.0f, 0.0f, 0.2f));
 
             // big text style
             largeTextStyle = new GUIStyle();
             largeTextStyle.fontSize = 30;
             largeTextStyle.normal.textColor = Color.white;
             largeTextStyle.wordWrap = true;
-            largeTextStyle.normal.background = MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
+            largeTextStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
 
             GUI.skin.textArea.wordWrap = true;
 
@@ -645,9 +645,9 @@ namespace CameraMessage
 
             if (studioneocam == null)
             {
-                getCameraV2();
-                getCameraBase();
-                GetCameraStudioNeo();
+                //Helpers.getCameraV2();
+                //Helpers.getCameraBase();
+                Helpers.GetCameraStudioNeo();
             }
         }
 
@@ -656,80 +656,12 @@ namespace CameraMessage
             //if (camv2 == null && basecam == null && studioneocam == null)
             if (studioneocam == null)
             {
-                getCameraV2();
-                getCameraBase();
-                GetCameraStudioNeo();
+                //Helpers.getCameraV2();
+                //Helpers.getCameraBase();
+                Helpers.GetCameraStudioNeo();
             }
         }
 
-        public void GetCameraStudioNeo()
-        {
-            //Console.WriteLine("GetCameraStudioNeo() entered" );
-
-            if (studioneocam != null)
-            {
-                // do nothing
-            }
-            Studio.CameraControl[] array = UnityEngine.Object.FindObjectsOfType<Studio.CameraControl>();
-            int num = 0;
-
-            if (num < array.Length)
-            {
-                studioneocam = array[num];
-                //Console.WriteLine("camera 1 found" + studioneocam);
-            }
-        }
-
-        public BaseCameraControl getCameraBase()
-        {
-            //Console.WriteLine("getCameraBase() entered");
-
-            if (basecam != null)
-            {
-                return basecam;
-            }
-            BaseCameraControl[] array = UnityEngine.Object.FindObjectsOfType<BaseCameraControl>();
-            int num = 0;
-
-            if (num < array.Length)
-            {
-                BaseCameraControl baseCameraControl = basecam = array[num];
-                //Console.WriteLine("camera 2 found" + studioneocam);
-            }
-            return basecam;
-        }
-
-
-        private Texture2D MakeTex(int width, int height, Color col)
-        {
-            Color[] pix = new Color[width * height];
-
-            for (int i = 0; i < pix.Length; i++)
-                pix[i] = col;
-
-            Texture2D result = new Texture2D(width, height);
-            result.SetPixels(pix);
-            result.Apply();
-
-            return result;
-        }
-
-
-        public CameraControl_Ver2 getCameraV2()
-        {
-            if (camv2 != null)
-            {
-                return camv2;
-            }
-            CameraControl_Ver2[] array = UnityEngine.Object.FindObjectsOfType<CameraControl_Ver2>();
-            int num = 0;
-
-            if (num < array.Length)
-            {
-                CameraControl_Ver2 cameraControl_Ver = camv2 = array[num];
-            }
-            return camv2;
-        }
 
         IEnumerator DisplayMessageCoRoutine()
         {

@@ -53,7 +53,7 @@ namespace CameraMessage
                 {
                     //getCameraV2();
                     //getCameraBase();
-                    cameraMessageBase.GetCameraStudioNeo();
+                    Helpers.GetCameraStudioNeo();
                 }
 
 

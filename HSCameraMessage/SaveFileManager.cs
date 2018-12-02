@@ -61,52 +61,44 @@ namespace CameraMessage
 
         public Dictionary<string, CameraPositionAndMessage> LoadFile(string fileName)
         {
-            
+
 
             Dictionary<string, CameraPositionAndMessage> cameraPositionAndMessageDictionary = new Dictionary<string, CameraPositionAndMessage>();
 
             string filetext = File.ReadAllText(UserData.Path + "cameramessage/" + fileName + ".csv");
             string[] cameraMessageArray = filetext.Split('\n');
 
-            try
-            {
-
-                foreach (string cameraMessage in cameraMessageArray)
+            foreach (string cameraMessage in cameraMessageArray)
             {
                 string[] cameraSetting = cameraMessage.Trim().Split(';');
 
-                    /// csv structure:
-                    ///         string CameraName (C1, C2 etc.)
-                    ///         Vector3 TargetPos  
-                    ///         Vector3 CameraDir  
-                    ///         Vector3 CameraAngle  
-                    ///         float CameraFov  
-                    ///         string Text  
+                /// csv structure:
+                ///         string CameraName (C1, C2 etc.)
+                ///         Vector3 TargetPos  
+                ///         Vector3 CameraDir  
+                ///         Vector3 CameraAngle  
+                ///         float CameraFov  
+                ///         string Text  
 
-                    if (cameraSetting.Length >= 6)
-                    {
-                        string cameraName = cameraSetting[0];
-                        Vector3 targetPos = StringToVector3(cameraSetting[1]);
-                        Vector3 cameraDir = StringToVector3(cameraSetting[2]);
-                        Vector3 cameraAngle = StringToVector3(cameraSetting[3]);
-                        float cameraFov = 0f;
-                        float.TryParse(cameraSetting[4], out cameraFov);
-                        string message = cameraSetting[5];
+                if (cameraSetting.Length >= 6)
+                {
+                    string cameraName = cameraSetting[0];
+                    Vector3 targetPos = StringToVector3(cameraSetting[1]);
+                    Vector3 cameraDir = StringToVector3(cameraSetting[2]);
+                    Vector3 cameraAngle = StringToVector3(cameraSetting[3]);
+                    float cameraFov = 0f;
+                    float.TryParse(cameraSetting[4], out cameraFov);
+                    string message = cameraSetting[5];
 
-                        // we have to encode newline, otherwise it messes with the CSV
-                        string decodedText = message.Replace('§','\n');
+                    // we have to encode newline, otherwise it messes with the CSV
+                    string decodedText = message.Replace('§', '\n');
 
-                        CameraPositionAndMessage cameraPositionAndMessage = new CameraPositionAndMessage(decodedText, targetPos, cameraDir, cameraAngle, cameraFov);
+                    CameraPositionAndMessage cameraPositionAndMessage = new CameraPositionAndMessage(decodedText, targetPos, cameraDir, cameraAngle, cameraFov);
 
-                        cameraPositionAndMessageDictionary.Add(cameraName, cameraPositionAndMessage);
-                    }
+                    cameraPositionAndMessageDictionary.Add(cameraName, cameraPositionAndMessage);
+                }
             }
 
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine(e.Message + " " + e.StackTrace);
-            }
 
             return cameraPositionAndMessageDictionary;
         }
