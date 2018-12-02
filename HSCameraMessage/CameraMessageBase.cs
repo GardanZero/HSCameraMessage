@@ -12,6 +12,12 @@ namespace CameraMessage
         public const int TEXTBOXHEIGHT = 200;
         public const int TEXTBOXWIDTH = 1000;
 
+        public static string[] cameraLabelCache = new string[90];
+        public static float[] cameraXCoordCache = new float[90];
+
+        private GUIContent[] bunchOfButtons;
+        private Vector2 listScroller;
+
         public static bool showMenu = false;
         public static bool pluginActive = false;
         public static bool showTextEditor = false;
@@ -21,6 +27,7 @@ namespace CameraMessage
         public static bool reachedEnd = false;
         public static DateTime lastplayedTimeStamp;
         public static bool isPlaying = false;
+        public bool showDisplayBox { get; private set; }
 
         public static string messageDelay = "8";
         public static string saveFileName = "Enter Filename here";
@@ -33,12 +40,68 @@ namespace CameraMessage
         public static Studio.CameraControl studioneocam = null;
         public static BaseCameraControl basecam = null;
         public static CameraControl_Ver2 camv2 = null;
-
-
-
         public static Dictionary<string, CameraPositionAndMessage> cameraDictionary = new Dictionary<string, CameraPositionAndMessage>();
 
-        public bool showDisplayBox { get; private set; }
+        public void InitializeCaches()
+        {
+            // label cache
+            for (int i = 0; i < 90; i++)
+            {
+                cameraLabelCache[i] = "C" + i;
+            }
+
+            // x coord cache
+            int counter = 0;
+            for (int i = 0; i < 15; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+            counter = 0;
+            for (int i = 15; i < 30; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+            counter = 0;
+            for (int i = 30; i < 45; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+            counter = 0;
+            for (int i = 45; i < 60; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+            counter = 0;
+            for (int i = 60; i < 75; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+            counter = 0;
+            for (int i = 75; i < 90; i++)
+            {
+                cameraXCoordCache[i] = 640 + counter * 40;
+                counter = counter + 1;
+            }
+
+
+            bunchOfButtons = new GUIContent[90];
+            for (int i = 0; i < bunchOfButtons.Length; i++)
+            {
+                bunchOfButtons[i] = new GUIContent(cameraLabelCache[i]);
+            }
+
+        }
+
 
         public void TogglePlugin()
         {
@@ -105,7 +168,6 @@ namespace CameraMessage
 
                 }
 
-                //TEST THIS -> works basically, but does not clear old message when clicking another button
                 StartCoroutine("DisplayMessageCoRoutine");
 
                 lastButtonPressed = cameraButtonName;
@@ -122,6 +184,8 @@ namespace CameraMessage
 
         public void OnGUI()
         {
+
+
             // show dialog box
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
 
@@ -319,140 +383,19 @@ namespace CameraMessage
                 GUILayout.EndArea();
 
 
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75), (float)(Screen.width / 3), (float)(Screen.height / 2)));
 
-                // Camera Buttons below
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+                // better performance with scrollarea
+                /*
+                GUI.BeginGroup(new Rect(640, 620, 50, 300), "", "box");
+                DoScrollArea(new Rect(0, 0, 50, 300), bunchOfButtons, 32);
+                GUI.EndGroup();
+                */
 
-                AddCamera("C1");
-                AddCamera("C2");
-                AddCamera("C3");
-                AddCamera("C4");
-                AddCamera("C5");
-                AddCamera("C6");
-                AddCamera("C7");
-                AddCamera("C8");
-                AddCamera("C9");
-                AddCamera("C10");
-                AddCamera("C11");
-                AddCamera("C12");
-                AddCamera("C13");
-                AddCamera("C14");
-                AddCamera("C15");
+                DrawCameraButtons();
 
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
 
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 20, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                AddCamera("C16");
-                AddCamera("C17");
-                AddCamera("C18");
-                AddCamera("C19");
-                AddCamera("C20");
-                AddCamera("C21");
-                AddCamera("C22");
-                AddCamera("C23");
-                AddCamera("C24");
-                AddCamera("C25");
-                AddCamera("C26");
-                AddCamera("C27");
-                AddCamera("C28");
-                AddCamera("C29");
-                AddCamera("C30");
-
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
-
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 40, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                AddCamera("C31");
-                AddCamera("C32");
-                AddCamera("C33");
-                AddCamera("C34");
-                AddCamera("C35");
-                AddCamera("C36");
-                AddCamera("C37");
-                AddCamera("C38");
-                AddCamera("C39");
-                AddCamera("C40");
-                AddCamera("C41");
-                AddCamera("C42");
-                AddCamera("C43");
-                AddCamera("C44");
-                AddCamera("C45");
-
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
-
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 60, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                AddCamera("C46");
-                AddCamera("C47");
-                AddCamera("C48");
-                AddCamera("C49");
-                AddCamera("C50");
-                AddCamera("C51");
-                AddCamera("C52");
-                AddCamera("C53");
-                AddCamera("C54");
-                AddCamera("C55");
-                AddCamera("C56");
-                AddCamera("C57");
-                AddCamera("C58");
-                AddCamera("C59");
-                AddCamera("C60");
-
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
-
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 80, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                AddCamera("C61");
-                AddCamera("C62");
-                AddCamera("C63");
-                AddCamera("C64");
-                AddCamera("C65");
-                AddCamera("C66");
-                AddCamera("C67");
-                AddCamera("C68");
-                AddCamera("C69");
-                AddCamera("C70");
-                AddCamera("C71");
-                AddCamera("C72");
-                AddCamera("C73");
-                AddCamera("C74");
-                AddCamera("C75");
-            
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
-
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 100, (float)(Screen.width / 3), (float)(Screen.height / 2)));
-                GUILayout.BeginHorizontal(new GUILayoutOption[0]);
-
-                AddCamera("C76");
-                AddCamera("C77");
-                AddCamera("C78");
-                AddCamera("C79");
-                AddCamera("C80");
-                AddCamera("C81");
-                AddCamera("C82");
-                AddCamera("C83");
-                AddCamera("C84");
-                AddCamera("C85");
-                AddCamera("C86");
-                AddCamera("C87");
-                AddCamera("C88");
-                AddCamera("C89");
-                AddCamera("C90");
-
-                GUILayout.EndHorizontal();
-                GUILayout.EndArea();
-
+                // sooo slooow
+                // StartCoroutine("DrawCameraButtonsCoRoutine");
 
             }
 
@@ -517,6 +460,79 @@ namespace CameraMessage
 
         }
 
+        private void DoScrollArea(Rect position, GUIContent[] buttons, int buttonHeight)
+        {
+
+            float height = 0;
+            int index = 0;
+
+            if (buttons.Length > 0)
+            { 
+                height = ((buttons.Length - 1) * buttonHeight);
+            }
+
+            listScroller = GUI.BeginScrollView(position, listScroller, new Rect(0, 0, position.width - 20, height + buttonHeight));
+
+            for (index = 0; index < buttons.Length; index++) { 
+
+                if (((index + 1) * buttonHeight) > listScroller.y)
+                {
+                    break;
+                }
+            }
+
+            //for (; index < buttons.Length (index * buttonHeight) < listScroller.y + position.height; index++)
+            for (; index < buttons.Length; index++)
+            { 
+                AddCameraButtonGUI(new Rect(0, index * buttonHeight, position.width - 16, buttonHeight), cameraLabelCache[index]);
+            }
+
+            GUI.EndScrollView();
+
+             
+
+            /*float startXpos = 640;
+                float startYpos = 610;
+                float buttonWidth = 40;
+                float buttonHeigth = 20;
+
+
+
+                for (int i = 0; i < 90; i++)
+                {
+                    if (i <= 15)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 15 && i < 30)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 20, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 30 && i < 45)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 40, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 45 && i < 60)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 60, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 60 && i < 75)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 80, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 75 && i < 90)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 100, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                    else if (i >= 90)
+                    {
+                        AddCameraButtonGUI(new Rect(cameraXCoordCache[i], startYpos + 120, buttonWidth, buttonHeigth), cameraLabelCache[i]);
+                    }
+                }
+
+*/
+        }
+
         private bool ShowPreviousCamera()
         {
             string cameraButtonNext = "C" + (int.Parse(lastPlayedButton.Substring(1)) - 1);
@@ -555,9 +571,38 @@ namespace CameraMessage
             return SetCameraAndMessage(cameraButtonNext);
         }
 
-        private void AddCamera(string cameraName)
+        private void AddCameraButtonGUI(Rect position, string cameraName)
         {
-            if (GUILayout.Button(cameraName, GetCorrectStyle(cameraName), new GUILayoutOption[0]))
+            // TODO, selecting the Style takes up huge computing time... how to improve?
+            //            if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
+                if (GUI.Button(position, cameraName))
+
+                {
+                    lastButtonPressed = cameraName;
+
+                
+                //left click
+                if (Input.GetMouseButtonUp(0))
+                {
+                    SetCameraAndMessage(lastButtonPressed);
+                }
+                // right click
+                else if (Input.GetMouseButtonUp(1))
+                {
+                    ToggleMainMenu();
+                }
+                
+            }
+
+        }
+
+
+        private void AddCameraButtonGUILayout(string cameraName)
+        {
+            // TODO: investigate why getcorrectstyle uses so much computing power
+
+            //if (GUILayout.Button(cameraName, GetCorrectStyle(cameraName), new GUILayoutOption[0]))
+            if (GUILayout.Button(cameraName, new GUILayoutOption[0]))
             {
                 lastButtonPressed = cameraName;
 
@@ -724,6 +769,324 @@ namespace CameraMessage
                 yield return new WaitForSeconds(0.06f);
             }
         }
+
+        private void DrawCameraButtons()
+        {
+            GUILayout.BeginArea(new Rect((Screen.width / 3), (float)(Screen.height / 1.75), (Screen.width / 3), (Screen.height / 2)+50));
+
+            // Camera Buttons below
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C1");
+            AddCameraButtonGUILayout("C2");
+            AddCameraButtonGUILayout("C3");
+            AddCameraButtonGUILayout("C4");
+            AddCameraButtonGUILayout("C5");
+            AddCameraButtonGUILayout("C6");
+            AddCameraButtonGUILayout("C7");
+            AddCameraButtonGUILayout("C8");
+            AddCameraButtonGUILayout("C9");
+            AddCameraButtonGUILayout("C10");
+            AddCameraButtonGUILayout("C11");
+            AddCameraButtonGUILayout("C12");
+            AddCameraButtonGUILayout("C13");
+            AddCameraButtonGUILayout("C14");
+            AddCameraButtonGUILayout("C15");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 20, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C16");
+            AddCameraButtonGUILayout("C17");
+            AddCameraButtonGUILayout("C18");
+            AddCameraButtonGUILayout("C19");
+            AddCameraButtonGUILayout("C20");
+            AddCameraButtonGUILayout("C21");
+            AddCameraButtonGUILayout("C22");
+            AddCameraButtonGUILayout("C23");
+            AddCameraButtonGUILayout("C24");
+            AddCameraButtonGUILayout("C25");
+            AddCameraButtonGUILayout("C26");
+            AddCameraButtonGUILayout("C27");
+            AddCameraButtonGUILayout("C28");
+            AddCameraButtonGUILayout("C29");
+            AddCameraButtonGUILayout("C30");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 40, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C31");
+            AddCameraButtonGUILayout("C32");
+            AddCameraButtonGUILayout("C33");
+            AddCameraButtonGUILayout("C34");
+            AddCameraButtonGUILayout("C35");
+            AddCameraButtonGUILayout("C36");
+            AddCameraButtonGUILayout("C37");
+            AddCameraButtonGUILayout("C38");
+            AddCameraButtonGUILayout("C39");
+            AddCameraButtonGUILayout("C40");
+            AddCameraButtonGUILayout("C41");
+            AddCameraButtonGUILayout("C42");
+            AddCameraButtonGUILayout("C43");
+            AddCameraButtonGUILayout("C44");
+            AddCameraButtonGUILayout("C45");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 60, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C46");
+            AddCameraButtonGUILayout("C47");
+            AddCameraButtonGUILayout("C48");
+            AddCameraButtonGUILayout("C49");
+            AddCameraButtonGUILayout("C50");
+            AddCameraButtonGUILayout("C51");
+            AddCameraButtonGUILayout("C52");
+            AddCameraButtonGUILayout("C53");
+            AddCameraButtonGUILayout("C54");
+            AddCameraButtonGUILayout("C55");
+            AddCameraButtonGUILayout("C56");
+            AddCameraButtonGUILayout("C57");
+            AddCameraButtonGUILayout("C58");
+            AddCameraButtonGUILayout("C59");
+            AddCameraButtonGUILayout("C60");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 80, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C61");
+            AddCameraButtonGUILayout("C62");
+            AddCameraButtonGUILayout("C63");
+            AddCameraButtonGUILayout("C64");
+            AddCameraButtonGUILayout("C65");
+            AddCameraButtonGUILayout("C66");
+            AddCameraButtonGUILayout("C67");
+            AddCameraButtonGUILayout("C68");
+            AddCameraButtonGUILayout("C69");
+            AddCameraButtonGUILayout("C70");
+            AddCameraButtonGUILayout("C71");
+            AddCameraButtonGUILayout("C72");
+            AddCameraButtonGUILayout("C73");
+            AddCameraButtonGUILayout("C74");
+            AddCameraButtonGUILayout("C75");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 100, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C76");
+            AddCameraButtonGUILayout("C77");
+            AddCameraButtonGUILayout("C78");
+            AddCameraButtonGUILayout("C79");
+            AddCameraButtonGUILayout("C80");
+            AddCameraButtonGUILayout("C81");
+            AddCameraButtonGUILayout("C82");
+            AddCameraButtonGUILayout("C83");
+            AddCameraButtonGUILayout("C84");
+            AddCameraButtonGUILayout("C85");
+            AddCameraButtonGUILayout("C86");
+            AddCameraButtonGUILayout("C87");
+            AddCameraButtonGUILayout("C88");
+            AddCameraButtonGUILayout("C89");
+            AddCameraButtonGUILayout("C90");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+        }
+
+
+        IEnumerator DrawCameraButtonsCoRoutine()
+        {
+
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75), (float)(Screen.width / 3), (float)(Screen.height / 2)));
+
+            // Camera Buttons below
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C1");
+            AddCameraButtonGUILayout("C2");
+            AddCameraButtonGUILayout("C3");
+            AddCameraButtonGUILayout("C4");
+            AddCameraButtonGUILayout("C5");
+            AddCameraButtonGUILayout("C6");
+            AddCameraButtonGUILayout("C7");
+            AddCameraButtonGUILayout("C8");
+            AddCameraButtonGUILayout("C9");
+            AddCameraButtonGUILayout("C10");
+            AddCameraButtonGUILayout("C11");
+            AddCameraButtonGUILayout("C12");
+            AddCameraButtonGUILayout("C13");
+            AddCameraButtonGUILayout("C14");
+            AddCameraButtonGUILayout("C15");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 20, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C16");
+            AddCameraButtonGUILayout("C17");
+            AddCameraButtonGUILayout("C18");
+            AddCameraButtonGUILayout("C19");
+            AddCameraButtonGUILayout("C20");
+            AddCameraButtonGUILayout("C21");
+            AddCameraButtonGUILayout("C22");
+            AddCameraButtonGUILayout("C23");
+            AddCameraButtonGUILayout("C24");
+            AddCameraButtonGUILayout("C25");
+            AddCameraButtonGUILayout("C26");
+            AddCameraButtonGUILayout("C27");
+            AddCameraButtonGUILayout("C28");
+            AddCameraButtonGUILayout("C29");
+            AddCameraButtonGUILayout("C30");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 40, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C31");
+            AddCameraButtonGUILayout("C32");
+            AddCameraButtonGUILayout("C33");
+            AddCameraButtonGUILayout("C34");
+            AddCameraButtonGUILayout("C35");
+            AddCameraButtonGUILayout("C36");
+            AddCameraButtonGUILayout("C37");
+            AddCameraButtonGUILayout("C38");
+            AddCameraButtonGUILayout("C39");
+            AddCameraButtonGUILayout("C40");
+            AddCameraButtonGUILayout("C41");
+            AddCameraButtonGUILayout("C42");
+            AddCameraButtonGUILayout("C43");
+            AddCameraButtonGUILayout("C44");
+            AddCameraButtonGUILayout("C45");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 60, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C46");
+            AddCameraButtonGUILayout("C47");
+            AddCameraButtonGUILayout("C48");
+            AddCameraButtonGUILayout("C49");
+            AddCameraButtonGUILayout("C50");
+            AddCameraButtonGUILayout("C51");
+            AddCameraButtonGUILayout("C52");
+            AddCameraButtonGUILayout("C53");
+            AddCameraButtonGUILayout("C54");
+            AddCameraButtonGUILayout("C55");
+            AddCameraButtonGUILayout("C56");
+            AddCameraButtonGUILayout("C57");
+            AddCameraButtonGUILayout("C58");
+            AddCameraButtonGUILayout("C59");
+            AddCameraButtonGUILayout("C60");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 80, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C61");
+            AddCameraButtonGUILayout("C62");
+            AddCameraButtonGUILayout("C63");
+            AddCameraButtonGUILayout("C64");
+            AddCameraButtonGUILayout("C65");
+            AddCameraButtonGUILayout("C66");
+            AddCameraButtonGUILayout("C67");
+            AddCameraButtonGUILayout("C68");
+            AddCameraButtonGUILayout("C69");
+            AddCameraButtonGUILayout("C70");
+            AddCameraButtonGUILayout("C71");
+            AddCameraButtonGUILayout("C72");
+            AddCameraButtonGUILayout("C73");
+            AddCameraButtonGUILayout("C74");
+            AddCameraButtonGUILayout("C75");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.75) + 100, (float)(Screen.width / 3), (float)(Screen.height / 2)));
+            GUILayout.BeginHorizontal(new GUILayoutOption[0]);
+
+            AddCameraButtonGUILayout("C76");
+            AddCameraButtonGUILayout("C77");
+            AddCameraButtonGUILayout("C78");
+            AddCameraButtonGUILayout("C79");
+            AddCameraButtonGUILayout("C80");
+            AddCameraButtonGUILayout("C81");
+            AddCameraButtonGUILayout("C82");
+            AddCameraButtonGUILayout("C83");
+            AddCameraButtonGUILayout("C84");
+            AddCameraButtonGUILayout("C85");
+            AddCameraButtonGUILayout("C86");
+            AddCameraButtonGUILayout("C87");
+            AddCameraButtonGUILayout("C88");
+            AddCameraButtonGUILayout("C89");
+            AddCameraButtonGUILayout("C90");
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+
+            yield return new WaitForSeconds(0.5f);
+
+        }
+
+        /*
+         * keep for now
+         * 
+         * 
+
+                     * 
+         * */
+
+
+            /*
+             * not used
+             * 
+                    IEnumerator AddCameraButtonGUICoRoutine(Rect position, string cameraName)
+                    {
+                        if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
+                        {
+                            lastButtonPressed = cameraName;
+
+                            //left click
+                            if (Input.GetMouseButtonUp(0))
+                            {
+                                SetCameraAndMessage(lastButtonPressed);
+                            }
+                            // right click
+                            else if (Input.GetMouseButtonUp(1))
+                            {
+                                ToggleMainMenu();
+                            }
+                        }
+
+                        yield return new WaitForSeconds(0.1f);
+                    }
+
+                */
+
+        }
     }
-}
 

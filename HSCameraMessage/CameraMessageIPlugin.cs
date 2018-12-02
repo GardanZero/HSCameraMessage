@@ -8,7 +8,7 @@ namespace CameraMessage
     {
         string IPlugin.Name => "Camera Message";
 
-        string IPlugin.Version => "1.1.0.0";
+        string IPlugin.Version => "1.3.0.0";
 
         void IPlugin.OnApplicationQuit()
         {
@@ -40,21 +40,27 @@ namespace CameraMessage
             CameraMessageBase[] componentsInChildren = gameObject.GetComponentsInChildren<CameraMessageBase>();
             for (int i = 0; i < componentsInChildren.Length; i++)
             {
-                CameraMessageBase movieMaker = componentsInChildren[i];
+                CameraMessageBase cameraMessageBase = componentsInChildren[i];
                 flag = true;
+                cameraMessageBase.InitializeCaches();
             }
             if (!flag)
             {
             
-                CameraMessageBase cameraMessagePlugin = gameObject.AddComponent<CameraMessageBase>();
+                CameraMessageBase cameraMessageBase = gameObject.AddComponent<CameraMessageBase>();
 
                 if (CameraMessageBase.studioneocam == null)
                 {
                     //getCameraV2();
                     //getCameraBase();
-                    cameraMessagePlugin.GetCameraStudioNeo();
+                    cameraMessageBase.GetCameraStudioNeo();
                 }
+
+
+                cameraMessageBase.InitializeCaches();
             }
+
+            
 
         }
 
