@@ -60,6 +60,7 @@
     <Compile Include="CameraMessageBase.cs" />
     <Compile Include="CameraMessageIPlugin.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="PluginUserSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveFileManager.cs" />
   </ItemGroup>

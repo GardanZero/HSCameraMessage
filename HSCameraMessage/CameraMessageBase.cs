@@ -302,7 +302,7 @@ namespace CameraMessage
                 if (GUILayout.Button(item6.FileName, (GUILayoutOption[])new GUILayoutOption[0]))
                 {
                     SaveFileManager sfm = new SaveFileManager();
-                    cameraDictionary = sfm.LoadFile(item6.FileName);
+                    cameraDictionary = sfm.LoadCameraDictionaryFile(item6.FileName);
                     loadDialogVisible = false;
                     pluginActive = true;
                 }
@@ -337,7 +337,7 @@ namespace CameraMessage
             if (GUILayout.Button("Save", (GUILayoutOption[])new GUILayoutOption[0]) && saveFileName != "Enter Filename here")
             {
                 SaveFileManager sfm = new SaveFileManager();
-                sfm.SaveToFile(cameraDictionary, saveFileName);
+                sfm.SaveCameraDictionaryToFile(cameraDictionary, saveFileName);
                 saveDialogVisible = false;
             }
             if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
@@ -425,7 +425,7 @@ namespace CameraMessage
 
             if (settingsDialogVisible)
             {
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+400, (float)(Screen.height / 3), 200, (float)(Screen.height / 2)));
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+400, (float)(Screen.height / 3), 400, (float)(Screen.height / 2)));
                 GUILayout.BeginVertical();
 
                 GUILayout.BeginHorizontal();
@@ -451,12 +451,15 @@ namespace CameraMessage
                         string textSpeedConvString = "0.0" + textSpeedString;
                         textSpeed = float.Parse(textSpeedConvString);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Console.WriteLine("couldn't convert user input to float: " + textSpeedString + ". Setting default");
                         textSpeedString = "4";
                         textSpeed = 0.04f;
                     }
+
+                    // save settings to file
+                    SaveFileManager.SaveSettingsToFile(new PluginUserSettings(textSpeed, int.Parse(messageDelay)));
 
                 }
 
@@ -608,10 +611,26 @@ namespace CameraMessage
             GUI.EndScrollView();
         }
 
+        private string FindPreviousCamera()
+        {
+            int lastCameraArrayNumber = int.Parse(lastPlayedButton.Substring(1));
+
+            for (int i = lastCameraArrayNumber - 1; i > 0; i--)
+            {
+                if (cameraDictionary.ContainsKey("C" + i))
+                {
+                    return "C" + i;
+                }
+            }
+
+            return "no more cameras";
+
+        }
+
+
         private bool ShowPreviousCamera()
         {
-            string cameraButtonNext = "C" + (int.Parse(lastPlayedButton.Substring(1)) - 1);
-            return SetCameraAndMessage(cameraButtonNext);
+            return SetCameraAndMessage(FindPreviousCamera());
         }
 
         IEnumerator PlayCamerAsCoroutine()
@@ -637,10 +656,25 @@ namespace CameraMessage
             }
         }
 
+        private string FindNextCamera()
+        {
+            int lastCameraArrayNumber = int.Parse(lastPlayedButton.Substring(1));
+
+            for (int i = lastCameraArrayNumber+1; i < cameraDictionary.Count; i++)
+            {
+                if (cameraDictionary.ContainsKey("C"+i))
+                {
+                    return "C" + i;
+                }
+            }
+
+            return "no more cameras";
+
+        }
+
         private bool ShowNextCamera()
         {
-            string cameraButtonNext = "C" + (int.Parse(lastPlayedButton.Substring(1)) + 1);
-            return SetCameraAndMessage(cameraButtonNext);
+            return SetCameraAndMessage(FindNextCamera());
         }
 
         private void AddCameraButtonGUI(Rect position, string cameraName)

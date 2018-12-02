@@ -8,7 +8,64 @@ namespace CameraMessage
 {
     public class SaveFileManager
     {
-        public void SaveToFile(Dictionary<string, CameraPositionAndMessage> cameraDictionary, string saveFileName)
+        private const string TEXTSPEED = "textspeed:";
+        private const string MESSAGEDELAY = "messagedelay:";
+
+
+        public static void SaveSettingsToFile(PluginUserSettings pluginUserSettings)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(TEXTSPEED);
+            sb.Append(pluginUserSettings.Textspeed);
+            sb.Append(Environment.NewLine);
+            sb.Append(MESSAGEDELAY);
+            sb.Append(pluginUserSettings.MessageDelay);
+
+            WriteSettingsToFile(sb.ToString());
+        }
+
+        public static void WriteSettingsToFile(string textForFile)
+        {
+            if (!Directory.Exists(UserData.Path + "cameramessage"))
+            {
+                Directory.CreateDirectory(UserData.Path + "cameramessage");
+            }
+
+            string filePathAndName = UserData.Path + "cameramessage/userSettings.txt";
+            File.WriteAllText(filePathAndName, textForFile);
+        }
+
+        public static PluginUserSettings LoadUserSettingsFromFile()
+        {
+            PluginUserSettings userSettings = new PluginUserSettings();
+
+            //default values
+            userSettings.Textspeed = 0.04f;
+            userSettings.MessageDelay = 8;
+
+            if (File.Exists(UserData.Path + "cameramessage/userSettings.txt"))
+            {
+
+                string filetext = File.ReadAllText(UserData.Path + "cameramessage/userSettings.txt");
+                string[] settingsMessageArray = filetext.Split('\n');
+
+                foreach (string userSetting in settingsMessageArray)
+                {
+                    if (userSetting.Contains(TEXTSPEED))
+                    {
+                        userSettings.Textspeed = float.Parse(userSetting.Substring(TEXTSPEED.Length));
+                    }
+                    else if (userSetting.Contains(MESSAGEDELAY))
+                    {
+                        userSettings.MessageDelay = int.Parse(userSetting.Substring(MESSAGEDELAY.Length));
+                    }
+                }
+
+            }
+            return userSettings;
+        }
+
+        public void SaveCameraDictionaryToFile(Dictionary<string, CameraPositionAndMessage> cameraDictionary, string saveFileName)
         {
             // gather all info from plugin and create csv
 
@@ -44,10 +101,10 @@ namespace CameraMessage
             }
 
             // then call WriteToFile with csv text
-            WriteFile(sb.ToString(), saveFileName);
+            WriteCameraDictionaryToFile(sb.ToString(), saveFileName);
         }
 
-        private void WriteFile(string csvText, string savename)
+        private void WriteCameraDictionaryToFile(string csvText, string savename)
         {
             if (!Directory.Exists(UserData.Path + "cameramessage"))
             {
@@ -59,10 +116,8 @@ namespace CameraMessage
             //Console.WriteLine("Saved a file to: " + filePathAndName);
         }
 
-        public Dictionary<string, CameraPositionAndMessage> LoadFile(string fileName)
+        public Dictionary<string, CameraPositionAndMessage> LoadCameraDictionaryFile(string fileName)
         {
-
-
             Dictionary<string, CameraPositionAndMessage> cameraPositionAndMessageDictionary = new Dictionary<string, CameraPositionAndMessage>();
 
             string filetext = File.ReadAllText(UserData.Path + "cameramessage/" + fileName + ".csv");

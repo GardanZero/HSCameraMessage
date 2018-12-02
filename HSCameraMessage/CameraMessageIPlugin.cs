@@ -58,6 +58,14 @@ namespace CameraMessage
 
 
                 cameraMessageBase.InitializeCaches();
+
+                PluginUserSettings userSettings = SaveFileManager.LoadUserSettingsFromFile();
+                CameraMessageBase.textSpeed = userSettings.Textspeed;
+                CameraMessageBase.textSpeedString = CameraMessageBase.textSpeed.ToString().Substring(CameraMessageBase.textSpeed.ToString().Length-1);
+                CameraMessageBase.messageDelay = userSettings.MessageDelay.ToString();
+
+                //Console.WriteLine("loaded textSpeed: '" + userSettings.Textspeed + "'");
+
             }
 
             
