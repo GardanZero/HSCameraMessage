@@ -429,30 +429,32 @@ namespace CameraMessage
 
                 GUILayout.BeginHorizontal();
                 // todo: make a slider
-                GUILayout.Label("Text speed (0 (instant) - 10): ");
+                GUILayout.Label("Text speed (0 (fastest) - 9 (slowest)): ");
                 textSpeedString = GUILayout.TextField(textSpeedString, new GUILayoutOption[0]);
+                
+                GUILayout.EndHorizontal();
 
-                try {
-                    if (!string.IsNullOrEmpty(textSpeedString))
+                if (GUILayout.Button("OK"))
+                {
+                    settingsDialogVisible = false;
+
+                    // change textspeed
+                    try
                     {
-
                         string textSpeedConvString = "0.0" + textSpeedString;
                         Console.WriteLine("conv: '" + textSpeedConvString + "'");
                         textSpeed = float.Parse(textSpeedConvString);
                     }
-                }
-                catch (Exception e)
-                {
-                    if (!string.IsNullOrEmpty(textSpeedString))
-                    { 
+                    catch (Exception e)
+                    {
                         Console.WriteLine("couldn't convert user input to float: " + textSpeedString + ". Setting default");
                         textSpeedString = "4";
                         textSpeed = 0.04f;
                     }
+
+                    Console.WriteLine("Textspeed is now " + textSpeed);
+
                 }
-
-                GUILayout.EndHorizontal();
-
 
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
@@ -710,12 +712,22 @@ namespace CameraMessage
 
         IEnumerator DisplayMessageCoRoutine()
         {
+            if (textSpeed > 0.0f)
+            { 
+
             int length = loadedMessageText.Length;
+
+            Console.WriteLine("using Textspeed " + textSpeed);
 
             for (int i = 0; i < length; i++)
             {
                 displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
                 yield return new WaitForSeconds(textSpeed);
+            }
+            }
+            else
+            {
+                displayedCurrentMessageText = loadedMessageText;
             }
         }
 
