@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using Studio;
 using System.Collections;
 
 namespace CameraMessage
@@ -47,6 +45,9 @@ namespace CameraMessage
         public static GUIStyle cameraButtonSavedStyle;
         public static GUIStyle cameraButtonSelectedStyle;
         public static GUIStyle largeTextStyle;
+        public static bool settingsDialogVisible;
+        public static float textSpeed = 0.04f;
+        public static string textSpeedString = "4";
 
         public void InitializeCaches()
         {
@@ -176,12 +177,8 @@ namespace CameraMessage
 
         public bool SetCameraAndMessage(string cameraButtonName)
         {
-            //Console.WriteLine("set camera for " + cameraButtonName + " and isplaying: " +playButtonPressed);
-
             if (cameraDictionary.ContainsKey(cameraButtonName))
             {
-
-                // //Console.WriteLine("Running setcameraAndamessage for "+cameraButtonName);
                 loadedMessageText = cameraDictionary[cameraButtonName].Text;
                 displayedCurrentMessageText = string.Empty;
 
@@ -228,7 +225,7 @@ namespace CameraMessage
             // this is the display box of the messages
             if (showDisplayBox)
             {
-                GUILayout.TextArea(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+                GUILayout.Label(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
             }
 
             GUILayout.EndArea();
@@ -395,14 +392,18 @@ namespace CameraMessage
                 loadDialogVisible = true;
             }
 
-
-            // todo: make a slider
-            GUILayout.Label("  Delay between Messages: ");
-
-            messageDelay = GUILayout.TextField(messageDelay, new GUILayoutOption[0]);
+            if (GUILayout.Button("Settings"))
+            {
+                if (settingsDialogVisible)
+                { settingsDialogVisible = false; }
+                else { 
+                settingsDialogVisible = true;
+                }
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
+
 
 
             // better performance with scrollarea
@@ -413,6 +414,50 @@ namespace CameraMessage
             */
 
             DrawCameraButtons();
+
+
+            if (settingsDialogVisible)
+            {
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+400, (float)(Screen.height / 3), 200, (float)(Screen.height / 2)));
+                GUILayout.BeginVertical();
+
+                GUILayout.BeginHorizontal();
+                // todo: make a slider
+                GUILayout.Label("Delay (s) between Messages for automatic playback: ");
+                messageDelay = GUILayout.TextField(messageDelay, new GUILayoutOption[0]);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                // todo: make a slider
+                GUILayout.Label("Text speed (0 (instant) - 10): ");
+                textSpeedString = GUILayout.TextField(textSpeedString, new GUILayoutOption[0]);
+
+                try {
+                    if (!string.IsNullOrEmpty(textSpeedString))
+                    {
+
+                        string textSpeedConvString = "0.0" + textSpeedString;
+                        Console.WriteLine("conv: '" + textSpeedConvString + "'");
+                        textSpeed = float.Parse(textSpeedConvString);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (!string.IsNullOrEmpty(textSpeedString))
+                    { 
+                        Console.WriteLine("couldn't convert user input to float: " + textSpeedString + ". Setting default");
+                        textSpeedString = "4";
+                        textSpeed = 0.04f;
+                    }
+                }
+
+                GUILayout.EndHorizontal();
+
+
+                GUILayout.EndVertical();
+                GUILayout.EndArea();
+
+            }
 
         }
 
@@ -670,7 +715,7 @@ namespace CameraMessage
             for (int i = 0; i < length; i++)
             {
                 displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
-                yield return new WaitForSeconds(0.04f);
+                yield return new WaitForSeconds(textSpeed);
             }
         }
 
