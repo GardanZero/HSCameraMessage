@@ -16,7 +16,7 @@ namespace CameraMessage
         private GUIContent[] bunchOfButtons;
         private Vector2 listScroller;
 
-        public static bool showMenu = false;
+        public static bool showCameraMenu = false;
         public static bool pluginActive = false;
         public static bool showTextEditor = false;
         public static bool saveDialogVisible = false;
@@ -48,6 +48,7 @@ namespace CameraMessage
         public static bool settingsDialogVisible;
         public static float textSpeed = 0.04f;
         public static string textSpeedString = "4";
+        private CameraPositionAndMessage clipboardCamera;
 
         public void InitializeCaches()
         {
@@ -150,15 +151,15 @@ namespace CameraMessage
             }
         }
 
-        public void ToggleMainMenu()
+        public void ToggleCameraMenu()
         {
-            if (showMenu)
+            if (showCameraMenu)
             {
-                showMenu = false;
+                showCameraMenu = false;
             }
             else
             {
-                showMenu = true;
+                showCameraMenu = true;
             }
 
         }
@@ -252,9 +253,9 @@ namespace CameraMessage
             }
 
             // Menu shown to do stuff
-            if (showMenu)
+            if (showCameraMenu)
             {
-                ShowMenu();
+                ShowCameraMenu();
             }
 
             if (playButtonPressed)
@@ -466,7 +467,7 @@ namespace CameraMessage
 
         }
 
-        private void ShowMenu()
+        private void ShowCameraMenu()
         {
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 3), (float)(Screen.width / 3), (float)(Screen.height / 2)));
 
@@ -475,7 +476,7 @@ namespace CameraMessage
             if (GUILayout.Button("Edit Text and save camera position"))
             {
                 //Console.WriteLine("Edit Text of " + lastButtonPressed + " was requested.");
-                ToggleMainMenu();
+                ToggleCameraMenu();
                 if (cameraDictionary.ContainsKey(lastButtonPressed))
                 {
                     messageTextToEdit = cameraDictionary[lastButtonPressed].Text;
@@ -486,7 +487,7 @@ namespace CameraMessage
             if (GUILayout.Button("Save Camera position"))
             {
                 //Console.WriteLine("Save Camera position of " + lastButtonPressed + " was requested.");
-                showMenu = false;
+                showCameraMenu = false;
 
                 if (cameraDictionary.ContainsKey(lastButtonPressed))
                 {
@@ -502,10 +503,34 @@ namespace CameraMessage
                 cameraDictionary.Add(lastButtonPressed, new CameraPositionAndMessage(messageTextToEdit, studioneocam.targetPos, cameraDistance, studioneocam.cameraAngle, studioneocam.fieldOfView));
             }
 
+            if (GUILayout.Button("Remove all camera settings"))
+            {
+                cameraDictionary.Remove(lastButtonPressed);
+            }
+
+            if (GUILayout.Button("Copy camera settings to clipboard"))
+            {
+                Vector3 cameraDistance = new Vector3(studioneocam.Export().distance.x, studioneocam.Export().distance.y, studioneocam.Export().distance.z);
+                clipboardCamera = cameraDictionary[lastButtonPressed];
+                ToggleCameraMenu();
+            }
+
+            if (GUILayout.Button("Paste camera settings from clipboard"))
+            {
+                if (cameraDictionary.ContainsKey(lastButtonPressed))
+                {
+                    cameraDictionary.Remove(lastButtonPressed);
+                }
+
+                cameraDictionary.Add(lastButtonPressed, clipboardCamera);
+                ToggleCameraMenu();
+            }
+
+
             if (GUILayout.Button("Cancel"))
             {
                 //Console.WriteLine("Cancelled menu.");
-                ToggleMainMenu();
+                ToggleCameraMenu();
             }
 
             GUILayout.EndVertical();
@@ -592,7 +617,7 @@ namespace CameraMessage
         IEnumerator PlayCamerAsCoroutine()
         {
             pluginActive = false;
-            showMenu = false;
+            showCameraMenu = false;
             showTextEditor = false;
 
             isPlaying = true;
@@ -633,7 +658,7 @@ namespace CameraMessage
                 // right click
                 else if (Input.GetMouseButtonUp(1))
                 {
-                    ToggleMainMenu();
+                    ToggleCameraMenu();
                 }
 
             }
@@ -655,7 +680,7 @@ namespace CameraMessage
                 // right click
                 else if (Input.GetMouseButtonUp(1))
                 {
-                    ToggleMainMenu();
+                    ToggleCameraMenu();
                 }
             }
         }
