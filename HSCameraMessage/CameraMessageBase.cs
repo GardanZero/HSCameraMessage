@@ -22,11 +22,12 @@ namespace CameraMessage
         public static bool saveDialogVisible = false;
         public static bool loadDialogVisible = false;
         public static bool playButtonPressed = false;
-        public static bool reachedEnd = false;
-        public static DateTime lastplayedTimeStamp;
-        public static bool isPlaying = false;
-        public bool showDisplayBox { get; private set; }
+        public static bool reachedEndOfAutoPlayback = false;
+        public static bool isPlayingAutomatically = false;
         public static bool stylesAreInitialized = false;
+        public static bool rollingTextisRunning = false;
+
+        public static bool ShowDisplayBox { get; set; }
 
         public static string messageDelay = "8";
         public static string saveFileName = "Enter Filename here";
@@ -35,7 +36,11 @@ namespace CameraMessage
         public string messageTextToEdit = "";
         public string loadedMessageText = "";
         public string displayedCurrentMessageText = "";
+        public static bool settingsDialogVisible;
+        public static float textSpeed = 0.04f;
+        public static string textSpeedString = "4";
 
+        public static DateTime lastplayedTimeStamp;
         public static Studio.CameraControl studioneocam = null;
         public static BaseCameraControl basecam = null;
         public static CameraControl_Ver2 camv2 = null;
@@ -45,9 +50,6 @@ namespace CameraMessage
         public static GUIStyle cameraButtonSavedStyle;
         public static GUIStyle cameraButtonSelectedStyle;
         public static GUIStyle largeTextStyle;
-        public static bool settingsDialogVisible;
-        public static float textSpeed = 0.04f;
-        public static string textSpeedString = "4";
         private CameraPositionAndMessage clipboardCamera;
 
         public void InitializeCaches()
@@ -146,7 +148,7 @@ namespace CameraMessage
             }
             else
             {
-                showDisplayBox = true;
+                ShowDisplayBox = true;
                 pluginActive = true;
             }
         }
@@ -224,14 +226,14 @@ namespace CameraMessage
             GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
 
             // this is the display box of the messages
-            if (showDisplayBox)
+            if (ShowDisplayBox)
             {
                 GUILayout.Label(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
             }
 
             GUILayout.EndArea();
 
-            if (showDisplayBox)
+            if (ShowDisplayBox)
             {
 
                 GUILayout.BeginArea(new Rect((float)(Screen.width / 3) + TEXTBOXWIDTH, (float)(Screen.height / 1.3) + TEXTBOXHEIGHT, 40, 60));
@@ -240,7 +242,7 @@ namespace CameraMessage
 
                 if (GUILayout.Button("Hide"))
                 {
-                    showDisplayBox = false;
+                    ShowDisplayBox = false;
                 }
 
                 GUILayout.EndHorizontal();
@@ -262,7 +264,7 @@ namespace CameraMessage
             {
                 //Console.WriteLine("isplaying?" + isPlaying);
 
-                if (!isPlaying)
+                if (!isPlayingAutomatically)
                 {
                     StartCoroutine("PlayCamerAsCoroutine");
                 }
@@ -316,7 +318,7 @@ namespace CameraMessage
             GUILayout.EndVertical();
             GUILayout.EndArea();
 
-            
+
         }
 
         private static void ShowSaveDialog()
@@ -358,11 +360,11 @@ namespace CameraMessage
 
             if (GUILayout.Button("Play"))
             {
-                isPlaying = false;
+                isPlayingAutomatically = false;
 
                 if (!playButtonPressed)
                 {
-                    reachedEnd = false;
+                    reachedEndOfAutoPlayback = false;
                     playButtonPressed = true;
                 }
             }
@@ -370,8 +372,8 @@ namespace CameraMessage
             if (GUILayout.Button("Stop"))
             {
                 playButtonPressed = false;
-                isPlaying = false;
-                reachedEnd = true;
+                isPlayingAutomatically = false;
+                reachedEndOfAutoPlayback = true;
                 lastPlayedButton = "C0";
                 lastButtonPressed = "C1";
                 loadedMessageText = "";
@@ -403,8 +405,9 @@ namespace CameraMessage
             {
                 if (settingsDialogVisible)
                 { settingsDialogVisible = false; }
-                else { 
-                settingsDialogVisible = true;
+                else
+                {
+                    settingsDialogVisible = true;
                 }
             }
 
@@ -425,7 +428,7 @@ namespace CameraMessage
 
             if (settingsDialogVisible)
             {
-                GUILayout.BeginArea(new Rect((float)(Screen.width / 3)+400, (float)(Screen.height / 3), 400, (float)(Screen.height / 2)));
+                GUILayout.BeginArea(new Rect((float)(Screen.width / 3) + 400, (float)(Screen.height / 3), 400, (float)(Screen.height / 2)));
                 GUILayout.BeginVertical();
 
                 GUILayout.BeginHorizontal();
@@ -438,7 +441,7 @@ namespace CameraMessage
                 // todo: make a slider
                 GUILayout.Label("Text speed (0 (fastest) - 9 (slowest)): ");
                 textSpeedString = GUILayout.TextField(textSpeedString, new GUILayoutOption[0]);
-                
+
                 GUILayout.EndHorizontal();
 
                 if (GUILayout.Button("OK"))
@@ -639,20 +642,26 @@ namespace CameraMessage
             showCameraMenu = false;
             showTextEditor = false;
 
-            isPlaying = true;
+            isPlayingAutomatically = true;
 
             do
             {
                 lastplayedTimeStamp = DateTime.Now;
-                reachedEnd = !ShowNextCamera();
-                yield return new WaitForSeconds(float.Parse(messageDelay));
-            } while (!reachedEnd);
 
-            if (reachedEnd)
+                // we wait at least until the rolling text is finished
+                if (!rollingTextisRunning)
+                { 
+                    reachedEndOfAutoPlayback = !ShowNextCamera();
+                }
+
+                yield return new WaitForSeconds(float.Parse(messageDelay));
+            } while (!reachedEndOfAutoPlayback);
+
+            if (reachedEndOfAutoPlayback)
             {
-                isPlaying = true;
+                isPlayingAutomatically = true;
                 playButtonPressed = false;
-                reachedEnd = true;
+                reachedEndOfAutoPlayback = true;
             }
         }
 
@@ -660,9 +669,9 @@ namespace CameraMessage
         {
             int lastCameraArrayNumber = int.Parse(lastPlayedButton.Substring(1));
 
-            for (int i = lastCameraArrayNumber+1; i < cameraDictionary.Count; i++)
+            for (int i = lastCameraArrayNumber + 1; i < cameraDictionary.Count; i++)
             {
-                if (cameraDictionary.ContainsKey("C"+i))
+                if (cameraDictionary.ContainsKey("C" + i))
                 {
                     return "C" + i;
                 }
@@ -775,16 +784,18 @@ namespace CameraMessage
         IEnumerator DisplayMessageCoRoutine()
         {
             if (textSpeed > 0.0f)
-            { 
-
-            int length = loadedMessageText.Length;
-
-
-            for (int i = 0; i < length; i++)
             {
-                displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
-                yield return new WaitForSeconds(textSpeed);
-            }
+                rollingTextisRunning = true;
+
+                int length = loadedMessageText.Length;
+
+                for (int i = 0; i < length; i++)
+                {
+                    displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
+                    yield return new WaitForSeconds(textSpeed);
+                }
+
+                rollingTextisRunning = false;
             }
             else
             {
