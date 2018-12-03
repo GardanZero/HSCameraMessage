@@ -52,6 +52,7 @@ namespace CameraMessage
         public static GUIStyle deleteButtonStyle;
         public static GUIStyle largeTextStyle;
         private CameraPositionAndMessage clipboardCamera;
+        private GUIStyle outlineTextStyle;
 
         public void InitializeCaches()
         {
@@ -139,12 +140,62 @@ namespace CameraMessage
             largeTextStyle.wordWrap = true;
             largeTextStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 0.0f, 0.0f, 0.1f));
 
+            // outline text style
+            outlineTextStyle = new GUIStyle();
+            outlineTextStyle.fontSize = 30;
+            //outlineTextStyle.fontStyle = FontStyle.Bold;
+
+
             GUI.skin.textArea.wordWrap = true;
 
             stylesAreInitialized = true;
         }
 
+        void DrawTextWithOutline(Rect centerRect, string text, GUIStyle style, Color borderColor, Color innerColor, int borderWidth)
+        {
+            // assign the border color
+            style.normal.textColor = borderColor;
 
+            // draw an outline color copy to the left and up from original
+            Rect modRect = centerRect;
+            modRect.x -= borderWidth;
+            modRect.y -= borderWidth;
+            GUI.Label(modRect, text, style);
+
+
+            // stamp copies from the top left corner to the top right corner
+            while (modRect.x <= centerRect.x + borderWidth)
+            {
+                modRect.x++;
+                GUI.Label(modRect, text, style);
+            }
+
+            // stamp copies from the top right corner to the bottom right corner
+            while (modRect.y <= centerRect.y + borderWidth)
+            {
+                modRect.y++;
+                GUI.Label(modRect, text, style);
+            }
+
+            // stamp copies from the bottom right corner to the bottom left corner
+            while (modRect.x >= centerRect.x - borderWidth)
+            {
+                modRect.x--;
+                GUI.Label(modRect, text, style);
+            }
+
+            // stamp copies from the bottom left corner to the top left corner
+            while (modRect.y >= centerRect.y - borderWidth)
+            {
+                modRect.y--;
+                GUI.Label(modRect, text, style);
+            }
+
+            // draw the inner color version in the center
+            style.normal.textColor = innerColor;
+            GUI.Label(centerRect, text, style);
+        }
+        
         public void TogglePlugin()
         {
             if (pluginActive)
@@ -228,15 +279,19 @@ namespace CameraMessage
             }
 
             // display box
-            GUILayout.BeginArea(new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100));
+            //TODO: consider centering the text, instead of offset to the right
+            Rect displayBoxRect = new Rect((float)(Screen.width / 3), (float)(Screen.height / 1.3), TEXTBOXWIDTH + 100, TEXTBOXHEIGHT + 100);
 
             // this is the display box of the messages
             if (ShowDisplayBox)
             {
-                GUILayout.Label(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+                // using old display box
+                // GUILayout.Label(displayedCurrentMessageText, largeTextStyle, GUILayout.Height(TEXTBOXHEIGHT), GUILayout.Width(TEXTBOXWIDTH));
+
+                // this uses the outline (movie subtitle style)
+                DrawTextWithOutline(displayBoxRect, displayedCurrentMessageText, outlineTextStyle, Color.black, Color.white, 3);
             }
 
-            GUILayout.EndArea();
 
             if (ShowDisplayBox)
             {
@@ -813,6 +868,7 @@ namespace CameraMessage
                 for (int i = 0; i < length; i++)
                 {
                     displayedCurrentMessageText = displayedCurrentMessageText + loadedMessageText[i];
+                    
                     yield return new WaitForSeconds(textSpeed);
                 }
 
