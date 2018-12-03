@@ -49,6 +49,7 @@ namespace CameraMessage
         public static GUIStyle cameraButtonNormalStyle;
         public static GUIStyle cameraButtonSavedStyle;
         public static GUIStyle cameraButtonSelectedStyle;
+        public static GUIStyle deleteButtonStyle;
         public static GUIStyle largeTextStyle;
         private CameraPositionAndMessage clipboardCamera;
 
@@ -126,6 +127,10 @@ namespace CameraMessage
             cameraButtonSelectedStyle = new GUIStyle(GUI.skin.button);
             cameraButtonSelectedStyle.normal.textColor = Color.white;
             cameraButtonSelectedStyle.normal.background = Helpers.MakeTex(600, 1, new Color(0.0f, 1.0f, 0.0f, 0.2f));
+
+            deleteButtonStyle = new GUIStyle(GUI.skin.button);
+            deleteButtonStyle.normal.textColor = Color.white;
+            deleteButtonStyle.normal.background = Helpers.MakeTex(600, 1, new Color(1.0f, 0.0f, 0.0f, 0.2f));
 
             // big text style
             largeTextStyle = new GUIStyle();
@@ -299,16 +304,32 @@ namespace CameraMessage
             GUILayout.Label("Load Camera Message Settings ", (GUILayoutOption[])new GUILayoutOption[0]);
             FolderAssist folderAssist = new FolderAssist();
             folderAssist.CreateFolderInfo(UserData.Path + "cameramessage/", "*.csv", true, true);
-            foreach (FolderAssist.FileInfo item6 in folderAssist.lstFile)
+
+            SaveFileManager sfm = new SaveFileManager();
+
+            foreach (FolderAssist.FileInfo fileInfo in folderAssist.lstFile)
             {
-                if (GUILayout.Button(item6.FileName, (GUILayoutOption[])new GUILayoutOption[0]))
+                GUILayout.BeginHorizontal();
+
+                if (GUILayout.Button(fileInfo.FileName, (GUILayoutOption[])new GUILayoutOption[0]))
                 {
-                    SaveFileManager sfm = new SaveFileManager();
-                    cameraDictionary = sfm.LoadCameraDictionaryFile(item6.FileName);
+                    cameraDictionary = sfm.LoadCameraDictionaryFile(fileInfo.FileName);
                     loadDialogVisible = false;
                     pluginActive = true;
                 }
+                
+                if (GUILayout.Button("Delete", deleteButtonStyle))
+                {
+                    sfm.DeleteSaveFile(fileInfo);
+                    loadDialogVisible = false;
+                    pluginActive = true;
+
+                }
+
+                GUILayout.EndHorizontal();
             }
+
+
             if (GUILayout.Button("Cancel", (GUILayoutOption[])new GUILayoutOption[0]))
             {
                 loadDialogVisible = false;

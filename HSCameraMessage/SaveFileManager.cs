@@ -111,9 +111,8 @@ namespace CameraMessage
                 Directory.CreateDirectory(UserData.Path + "cameramessage");
             }
 
-            string filePathAndName = UserData.Path + "cameramessage/" + savename + "-" + UnityEngine.Random.Range(123456, 99999999) + ".csv";
+            string filePathAndName = UserData.Path + "cameramessage/" + savename + ".csv";
             File.WriteAllText(filePathAndName, csvText);
-            //Console.WriteLine("Saved a file to: " + filePathAndName);
         }
 
         public Dictionary<string, CameraPositionAndMessage> LoadCameraDictionaryFile(string fileName)
@@ -178,5 +177,17 @@ namespace CameraMessage
             return result;
         }
 
+        public void DeleteSaveFile(FolderAssist.FileInfo fileInfo)
+        {
+            try
+            {
+                File.Delete(fileInfo.FullPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("could not delete file: " + fileInfo.FullPath + " " + e.Message + e.StackTrace);
+            }
+            
+        }
     }
 }
