@@ -10,8 +10,11 @@ namespace CameraMessage
         public const int TEXTBOXHEIGHT = 200;
         public const int TEXTBOXWIDTH = 1000;
 
-        public static string[] cameraLabelCache = new string[90];
-        public static float[] cameraXCoordCache = new float[90];
+        // if this is changed, also change: DrawCameraButtons()
+        public const int NUMBER_OF_CAMERAS = 90;
+
+        public static string[] cameraLabelCache = new string[NUMBER_OF_CAMERAS];
+        public static float[] cameraXCoordCache = new float[NUMBER_OF_CAMERAS];
 
         private GUIContent[] bunchOfButtons;
         private Vector2 listScroller;
@@ -57,7 +60,7 @@ namespace CameraMessage
         public void InitializeCaches()
         {
             // label cache
-            for (int i = 0; i < 90; i++)
+            for (int i = 0; i < NUMBER_OF_CAMERAS; i++)
             {
                 cameraLabelCache[i] = "C" + i;
             }
@@ -99,14 +102,15 @@ namespace CameraMessage
             }
 
             counter = 0;
-            for (int i = 75; i < 90; i++)
+            for (int i = 75; i < NUMBER_OF_CAMERAS; i++)
             {
                 cameraXCoordCache[i] = 640 + counter * 40;
                 counter = counter + 1;
             }
 
+            // create buttons with labels in advance
 
-            bunchOfButtons = new GUIContent[90];
+            bunchOfButtons = new GUIContent[NUMBER_OF_CAMERAS];
             for (int i = 0; i < bunchOfButtons.Length; i++)
             {
                 bunchOfButtons[i] = new GUIContent(cameraLabelCache[i]);
@@ -745,14 +749,19 @@ namespace CameraMessage
         {
             int lastCameraArrayNumber = int.Parse(lastPlayedButton.Substring(1));
 
-            for (int i = lastCameraArrayNumber + 1; i < cameraDictionary.Count; i++)
+           // Console.WriteLine("DEBUG: lastCameraArrayNumber:" + lastCameraArrayNumber);
+
+            for (int i = lastCameraArrayNumber + 1; i < NUMBER_OF_CAMERAS; i++)
             {
                 if (cameraDictionary.ContainsKey("C" + i))
                 {
+                    // Console.WriteLine("DEBUG: found next camera:" + "C"+i);
+
                     return "C" + i;
                 }
             }
 
+            // Console.WriteLine("DEBUG: found no more cameras.");
             return "no more cameras";
 
         }
@@ -762,6 +771,7 @@ namespace CameraMessage
             return SetCameraAndMessage(FindNextCamera());
         }
 
+        // not being used ATM
         private void AddCameraButtonGUI(Rect position, string cameraName)
         {
             if (GUI.Button(position, cameraName, GetCorrectStyle(cameraName)))
